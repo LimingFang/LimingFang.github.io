@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">LevelDB学习——1、Arena - Leo&#39;s Blog</title><meta name="Description" content=""><meta property="og:title" content="LevelDB学习——1、Arena" />
+<meta property="og:description" content="Arena​ Arena 在 Leveldb 中负责对 Memtable 内存管理，加快了 Memtable 使用堆内存时的效率。相关文件是 util/arena.h,util/arena.cc。 ​ Arena 管理堆" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/arena/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-03-05T12:08:18+08:00" />
+<meta property="article:modified_time" content="2022-03-05T12:08:18+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="LevelDB学习——1、Arena"/>
+<meta name="twitter:description" content="Arena​ Arena 在 Leveldb 中负责对 Memtable 内存管理，加快了 Memtable 使用堆内存时的效率。相关文件是 util/arena.h,util/arena.cc。 ​ Arena 管理堆"/>
+<meta name="application-name" content="Leo&#39;s Blog">
+<meta name="apple-mobile-web-app-title" content="Leo&#39;s Blog">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/arena/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "LevelDB学习——1、Arena",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/arena\/"
+        },"genre": "posts","keywords": "LevelDB","wordcount":  558 ,
+        "url": "http:\/\/example.org\/posts\/arena\/","datePublished": "2022-03-05T12:08:18+08:00","dateModified": "2022-03-05T12:08:18+08:00","publisher": {
+            "@type": "Organization",
+            "name": "作者"},"authors": [{
+                    "@type": "Person",
+                    "name": "方里明"
+                }],"description": ""
+    }
+    </script></head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><span class="menu-item delimiter"></span><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">LevelDB学习——1、Arena</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://example.org/authors/leo'>方里明</a></span>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/leveldb%E5%AD%A6%E4%B9%A0/"><i class="far fa-folder fa-fw"></i>LevelDB学习</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-05">2022-03-05</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-05">2022-03-05</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 558 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="content" id="content"><h1 id="arena" class="headerLink">
+    <a href="#arena" class="header-mark"></a>Arena</h1><p>​		Arena 在 Leveldb 中负责对 Memtable 内存管理，加快了 Memtable 使用堆内存时的效率。相关文件是 <code>util/arena.h</code>,<code>util/arena.cc</code>。</p>
+<p>​		Arena 管理堆内存的逻辑是：以4KB大小 <code>kBlockSize</code> 进行堆内存申请，然后切分给 memtable 使用。这样 memtable 不用每次申请堆内存时都调用 <code>new</code></p>
+<p>​		Arena 提供给 memtable 的接口如下：Arena 不提供释放堆内存的接口，因为 memtable 在销毁时才释放内存。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// Return a pointer to a newly allocated memory block of &#34;bytes&#34; bytes.
+</span><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">Allocate</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
+
+<span class="c1">// Allocate memory with the normal alignment guarantees provided by malloc.
+</span><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">AllocateAligned</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
+
+<span class="c1">// Returns an estimate of the total memory usage of data allocated
+</span><span class="c1">// by the arena.
+</span><span class="c1"></span><span class="n">size_t</span> <span class="nf">MemoryUsage</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">memory_usage_</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="内存管理模型" class="headerLink">
+    <a href="#%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e6%a8%a1%e5%9e%8b" class="header-mark"></a>内存管理模型</h2><p>​		Arena 中内存管理非常简单，就是一个堆内存块数组，每个大小为 <code>kBlockSize</code> = 4KB，每次只有一个块是活跃的，分配逻辑如下：</p>
+<!-- raw HTML omitted -->
+<p>​		内存分配需要注意的问题是，如果当前剩余的不够怎么办，是否浪费剩余空间在向系统申请一块。Arena 进行分类讨论，如果申请的比较大，则干脆分配一个新的，剩下的还可以接着用；如果申请的比较小，比如小于1KB，此时很有可能剩余空间非常小，因此浪费掉也无所谓。因此Arena理论上最多浪费25%的空间。</p>
+<h2 id="实现" class="headerLink">
+    <a href="#%e5%ae%9e%e7%8e%b0" class="header-mark"></a>实现</h2><p>​		Arena实现非常简单，唯一需要注意的是 <code>Allocate</code> 和 <code>AllocateFallback</code>，在其他地方也可使用类似命名。</p>
+<p>​		另外值得注意的是，leveldb 在单测里对 Arena 的内存占用量进行了简单评估，以不同概率申请不同大小的块，最终实际占用量/有效占用量不超过1.1，即不到10%的空间浪费（</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-03-05</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leveldb/">LevelDB</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":10},"comment":{}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script></div>
+</body>
+
+</html>
