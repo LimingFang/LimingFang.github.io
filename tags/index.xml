@@ -3,10 +3,10 @@
         <title>Tags - 标签 - Leo&#39;s Blog</title>
         <link>http://example.org/tags/</link>
         <description>Tags - 标签 - Leo&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 08 Mar 2022 21:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 10 Mar 2022 21:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
     <title>rCore</title>
     <link>http://example.org/tags/rcore/</link>
-    <pubDate>Tue, 08 Mar 2022 21:08:18 &#43;0800</pubDate><author>
+    <pubDate>Thu, 10 Mar 2022 21:08:18 &#43;0800</pubDate><author>
         <name>作者</name>
     </author><guid>http://example.org/tags/rcore/</guid>
     <description><![CDATA[]]></description>
