@@ -20,7 +20,7 @@
 
 <meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" /><link rel="prev" href="http://example.org/posts/skiplist/" /><link rel="next" href="http://example.org/posts/%E6%89%B9%E5%A4%84%E7%90%86%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" /><link rel="prev" href="http://example.org/posts/arena/" /><link rel="next" href="http://example.org/posts/%E6%89%B9%E5%A4%84%E7%90%86%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
         <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
         <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -31,7 +31,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83\/"
-        },"genre": "posts","keywords": "rCore","wordcount":  4007 ,
+        },"genre": "posts","keywords": "rCore","wordcount":  4169 ,
         "url": "http:\/\/example.org\/posts\/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83\/","datePublished": "2022-03-08T21:08:18+08:00","dateModified": "2022-03-08T21:08:18+08:00","publisher": {
             "@type": "Organization",
             "name": "作者"},"authors": [{
@@ -87,8 +87,8 @@
             <div class="post-meta-line">
                 <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://example.org/authors/leo'>方里明</a></span>
                 </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/rcore%E5%AD%A6%E4%B9%A0/"><i class="far fa-folder fa-fw"></i>rCore学习</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-08">2022-03-08</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-08">2022-03-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 4007 字&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 8 分钟&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-08">2022-03-08</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-08">2022-03-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 4169 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 9 分钟&nbsp;</div>
         </div><div class="content" id="content"><h1 id="引言" class="headerLink">
     <a href="#%e5%bc%95%e8%a8%80" class="header-mark"></a>引言</h1><p>​		Chp1 的目标是基于裸机的、能运行的内核代码，同时介绍了程序运行环境等的一些理论原理。本文分两个部分，一是移除 std 编写运行程序，二是直接基于裸机运行三叶虫内核代码。</p>
 <h1 id="环境配置" class="headerLink">
@@ -353,7 +353,25 @@ _start:
 </ul>
 <p>​		至此，我们“三叶虫”操作系统完成！</p>
 <!-- raw HTML omitted -->
-<p>​</p>
+<h1 id="问答题" class="headerLink">
+    <a href="#%e9%97%ae%e7%ad%94%e9%a2%98" class="header-mark"></a>问答题</h1><ul>
+<li>
+<p>应用程序在执行过程中，会占用哪些计算机资源</p>
+<p>CPU、内存、硬盘、网卡等</p>
+</li>
+<li>
+<p>请用相关工具软件分析并给出应用程序A的代码段/数据段/堆/栈的地址空间范围。</p>
+</li>
+</ul>
+<p>（ <code>ls</code> 程序）</p>
+<p><code>rust-readobj --sections ....</code></p>
+<p>可以打印出每个 section 的地址、大小等信息。</p>
+<ul>
+<li>
+<p>backtrace 的原理</p>
+<p>每个函数对应一个 stack frame，里面有返回地址 ra、fp、local vars 以及 callee-saved regs，其中 fp 指向上一个 stack frame 的内存地址。</p>
+</li>
+</ul>
 </div>
 
         <div class="post-footer" id="post-footer">
@@ -379,7 +397,7 @@ _start:
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/skiplist/" class="prev" rel="prev" title="LevelDB学习——1、SkipList"><i class="fas fa-angle-left fa-fw"></i>LevelDB学习——1、SkipList</a>
+    <div class="post-nav"><a href="/posts/arena/" class="prev" rel="prev" title="LevelDB学习——1、Arena"><i class="fas fa-angle-left fa-fw"></i>LevelDB学习——1、Arena</a>
             <a href="/posts/%E6%89%B9%E5%A4%84%E7%90%86%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="next" rel="next" title="rCore学习——2、批处理系统（三叶虫）">rCore学习——2、批处理系统（三叶虫）<i class="fas fa-angle-right fa-fw"></i></a></div>
 </div>
 </article></div>
