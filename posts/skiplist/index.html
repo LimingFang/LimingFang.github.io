@@ -97,10 +97,10 @@
     <a href="#skiplist-%e5%8e%9f%e7%90%86" class="header-mark"></a>SkipList 原理</h1><p>​		SkipList 是对单链表的拓展。链表的节点插入和删除本身是O（1）的，慢的是查询到相应的节点。单链表没法使用二分搜索，必须O（N）遍历一遍。因此一个很自然的思路是每个节点多存一些信息，以此加快遍历的速度，比如每次允许每次往后跳2个，或者4个节点，以此类推&hellip;. 因此<code>SkipList</code> 的每个节点具有 height 属性，一次性保存了多个后驱节点指，在自上而下查询的时候，刚开始能每次 step 非常远，达到加速查询的效果。举个例子，我们在查询 25 这个节点时只需要跳两次，而单链表则需要9次左右。每个节点的 height 是服从几何分布的，一般常见的是 p = 3/4 的几何分布：3/4 的概率高度为1，3/16 的概率高度为2，以此类推。最终数学上能证明 <code>SkipList</code> 的查询和插入的时间复杂度是 O(LogN)（至于为什么我们不用太关心）。此外，p = 3/4 的时候，每个节点的期望高度是 4/3，即平均只多耗费了33%的空间。</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/leveldb/skiplist.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/leveldb/skiplist.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/leveldb/skiplist.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/leveldb/skiplist.png 2x"
+        data-src="/img/leveldb/skiplist.png"
+        data-srcset="/img/leveldb/skiplist.png, /img/leveldb/skiplist.png 1.5x, /img/leveldb/skiplist.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/leveldb/skiplist.png"
+        alt="/img/leveldb/skiplist.png"
         title="skiplist"></p>
 <p>​		从结构上说，<code>SkipList</code> 保存了 dummy header，这个在单链表中也经常使用，方便头节点的操作。在 <code>SkipList</code> 中还体现在 header 的高度是最大的，保证始终是自顶向下搜索。<code>Node</code> 中 next 数组保存了当前节点每一层的后驱节点，采用了弹性数组，不过为了方便也可以每个 <code>Node</code> 的 next 数组空间都拉满（</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">SkipList</span> <span class="p">{</span>

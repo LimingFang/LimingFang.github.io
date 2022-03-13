@@ -239,19 +239,19 @@ SECTIONS {
     <a href="#%e9%80%82%e9%85%8d%e7%94%a8%e6%88%b7%e7%a8%8b%e5%ba%8f%e7%9a%84%e5%ad%98%e5%82%a8%e5%92%8c%e5%8a%a0%e8%bd%bd%e8%bf%90%e8%a1%8c" class="header-mark"></a>适配用户程序的存储和加载运行</h2><p>​		整个内核和用户程序编译链接后内存布局如下：</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png 2x"
+        data-src="/img/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png"
+        data-srcset="/img/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png, /img/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png 1.5x, /img/rCore/Chp2/%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%b8%83%e5%b1%80.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/内核内存布局.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/内核内存布局.png"></p>
+        alt="/img/rCore/Chp2/内核内存布局.png"
+        title="内核内存布局"></p>
 <p>​		其中 user code 内部具体布局如下：</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png 2x"
+        data-src="/img/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png"
+        data-srcset="/img/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png, /img/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png 1.5x, /img/rCore/Chp2/%e7%94%a8%e6%88%b7%e4%bb%a3%e7%a0%81%e5%b8%83%e5%b1%80.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/用户代码布局.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/用户代码布局.png"></p>
+        alt="/img/rCore/Chp2/用户代码布局.png"
+        title="用户代码布局"></p>
 <h3 id="内联汇编-link_apps" class="headerLink">
     <a href="#%e5%86%85%e8%81%94%e6%b1%87%e7%bc%96-link_apps" class="header-mark"></a>内联汇编 <code>link_app.S</code></h3><p>​		作用是将用户程序镜像指令嵌入 <code>.data</code></p>
 <ul>
@@ -361,11 +361,11 @@ app_2_end:
 </ul>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png 2x"
+        data-src="/img/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png"
+        data-srcset="/img/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png, /img/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png 1.5x, /img/rCore/Chp2/trap%e6%b5%81%e7%a8%8b.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap流程.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap流程.png"></p>
+        alt="/img/rCore/Chp2/trap流程.png"
+        title="trap流程"></p>
 <p>​		然后是与 trap 机制相关的是控制状态寄存器（CSR）：</p>
 <ul>
 <li>
@@ -389,11 +389,11 @@ app_2_end:
 <p>​		trap context 不仅需要保存32个通用寄存器，还需要保存处理 trap 时的某些 CSR，包括 <code>sstatus</code>（返回时会用到）、<code>sepc</code>（返回时会用到）。此外，trap 模块在初始化的时候需要提前设置好 <code>stvec</code> 的地址，即 <code>__alltraps</code></p>
 <p>​						<img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png 2x"
+        data-src="/img/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png"
+        data-srcset="/img/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png, /img/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png 1.5x, /img/rCore/Chp2/trap%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bf%9d%e5%ad%98.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap上下文保存.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp2/trap上下文保存.png"></p>
+        alt="/img/rCore/Chp2/trap上下文保存.png"
+        title="trap上下文保存"></p>
 <h4 id="实现顺序" class="headerLink">
     <a href="#%e5%ae%9e%e7%8e%b0%e9%a1%ba%e5%ba%8f" class="header-mark"></a>实现顺序</h4><ul>
 <li>定义 <code>TrapCtx</code> 结构体</li>

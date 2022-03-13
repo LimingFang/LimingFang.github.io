@@ -111,19 +111,19 @@
 <p>声明 <code>#![no_main]</code>:移除 std 后，<code>start</code> 语义项丢失了，通过该声明通知 rustc 没有一般的 <code>main</code> 函数（个人理解是，正常情况下，crt0 中有 <code>_start</code> 来调用 rust 中的 start 语义项，然后调用 <code>main</code>。在移除 std 后，crt0 也是没法用的，根本没地方会调用 start 语义项，但是 rustc 找不到其定义依然会报错。<code>no_main</code> 直接不用这套流程，在https://12101111.github.io/rust-no-main/ 有详细分析，我们也可以尝试加 <code>#[start]</code>，实际是没啥作用的</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png 2x"
+        data-src="/img/rCore/Chp1/1.png"
+        data-srcset="/img/rCore/Chp1/1.png, /img/rCore/Chp1/1.png 1.5x, /img/rCore/Chp1/1.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/1.png"></p>
+        alt="/img/rCore/Chp1/1.png"
+        title="1"></p>
 <p>​		下图是最后最终状态</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png 2x"
+        data-src="/img/rCore/Chp1/3.png"
+        data-srcset="/img/rCore/Chp1/3.png, /img/rCore/Chp1/3.png 1.5x, /img/rCore/Chp1/3.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/3.png"></p>
+        alt="/img/rCore/Chp1/3.png"
+        title="2"></p>
 </li>
 </ul>
 <blockquote>
@@ -216,11 +216,11 @@ _start:
 <pre tabindex="0"><code>rust-readobj -S target/riscv64gc-unknown-none-elf/debug/os 
 </code></pre><p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png 2x"
+        data-src="/img/rCore/Chp1/4.png"
+        data-srcset="/img/rCore/Chp1/4.png, /img/rCore/Chp1/4.png 1.5x, /img/rCore/Chp1/4.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/4.png"></p>
+        alt="/img/rCore/Chp1/4.png"
+        title="4"></p>
 <p>​		可以发现，由于我们只有一条指令，所以 size = 4，但是由于 align 所以占了 4KB；此外，没有 .data 等段。</p>
 <p>​		此外，我们还可以认为加一些代码和数据。由于我们链接脚本里定义了 <code>stext</code>，因此可以在 main.rs 里引用它。</p>
 <blockquote>
@@ -239,19 +239,19 @@ _start:
 </code></pre><p>​		然后使用 riscv toolchain 的 gdb 去 attach，即可启动真正开始运行。从下图可以发现，qemu 模拟确实是从 0x1000 开始运行的。</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png 2x"
+        data-src="/img/rCore/Chp1/5.png"
+        data-srcset="/img/rCore/Chp1/5.png, /img/rCore/Chp1/5.png 1.5x, /img/rCore/Chp1/5.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/5.png"></p>
+        alt="/img/rCore/Chp1/5.png"
+        title="5"></p>
 <p>此时继续在 0x8000_0000 打断点，continue，则会进入 bootloader 部分，然后进入 0x8020_0000，控制权交给内核镜像。</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png 2x"
+        data-src="/img/rCore/Chp1/6.png"
+        data-srcset="/img/rCore/Chp1/6.png, /img/rCore/Chp1/6.png 1.5x, /img/rCore/Chp1/6.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/6.png"></p>
+        alt="/img/rCore/Chp1/6.png"
+        title="6"></p>
 <blockquote>
 <p>总结：目前成功的移除了 std，然后编写了基础的内核代码，放在 qemu 上成功运行。有点类似成功点火，后面只是优化内核代码了。</p>
 </blockquote>
@@ -284,11 +284,11 @@ _start:
 <p>stack frame（栈帧）：保存函数调用上下文的内存区域。一般包含ra、fp、called-saved regs、local vars</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png 2x"
+        data-src="/img/rCore/Chp1/7.png"
+        data-srcset="/img/rCore/Chp1/7.png, /img/rCore/Chp1/7.png 1.5x, /img/rCore/Chp1/7.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/7.png"></p>
+        alt="/img/rCore/Chp1/7.png"
+        title="7"></p>
 </li>
 <li>
 <p>重要的 callee-saved regs：</p>
@@ -314,19 +314,19 @@ _start:
 <p>​		具体如下：控制权最初在 <code>_start</code> 符号，我们分配一个[boot_stack,boot_stack_top] 范围的栈，一共 64 KB，从高地址往低地址增长，在没有 stackoverflow 的情况下，是不会与内核代码、数据冲突的。</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png 2x"
+        data-src="/img/rCore/Chp1/8.png"
+        data-srcset="/img/rCore/Chp1/8.png, /img/rCore/Chp1/8.png 1.5x, /img/rCore/Chp1/8.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/8.png"></p>
+        alt="/img/rCore/Chp1/8.png"
+        title="8"></p>
 <p>​		当调用 <code>rust_main</code> 后，就成功进入了 rust 领域！我们只需要像编写普通的 main 函数一样编写 rust_main 即可。<code>entry.asm</code> 即相当于极简的 runtime，它分配了 stack ，然后调用了 <code>rust_main</code>。需要注意，runtime 还需要对 .bss 相应区域清零。</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png 2x"
+        data-src="/img/rCore/Chp1/9.png"
+        data-srcset="/img/rCore/Chp1/9.png, /img/rCore/Chp1/9.png 1.5x, /img/rCore/Chp1/9.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/9.png"></p>
+        alt="/img/rCore/Chp1/9.png"
+        title="9"></p>
 <blockquote>
 <p>总结：通过分配栈使能函数调用，将控制权从汇编转移到 Rust，方便后续内核代码编写。</p>
 </blockquote>
@@ -401,11 +401,11 @@ _start:
 <p>​		至此，我们“三叶虫”操作系统完成！</p>
 <p><img
         class="lazyload"
-        data-src="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png"
-        data-srcset="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png 1.5x, https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png 2x"
+        data-src="/img/rCore/Chp1/11.png"
+        data-srcset="/img/rCore/Chp1/11.png, /img/rCore/Chp1/11.png 1.5x, /img/rCore/Chp1/11.png 2x"
         data-sizes="auto"
-        alt="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png"
-        title="https://github.com/LimingFang/LimingFang.github.io/raw/master/picture/rCore/Chp1/11.png"></p>
+        alt="/img/rCore/Chp1/11.png"
+        title="11"></p>
 <h1 id="问答题" class="headerLink">
     <a href="#%e9%97%ae%e7%ad%94%e9%a2%98" class="header-mark"></a>问答题</h1><ul>
 <li>
