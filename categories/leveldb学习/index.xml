@@ -3,7 +3,13 @@
         <title>LevelDB学习 - 分类 - Leo&#39;s Blog</title>
         <link>http://example.org/categories/leveldb%E5%AD%A6%E4%B9%A0/</link>
         <description>LevelDB学习 - 分类 - Leo&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 13 Mar 2022 12:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leveldb%E5%AD%A6%E4%B9%A0/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Thu, 31 Mar 2022 12:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leveldb%E5%AD%A6%E4%B9%A0/" rel="self" type="application/rss+xml" /><item>
+    <title>LevelDB学习——0、Leveldb综述</title>
+    <link>http://example.org/posts/%E6%A8%A1%E5%9D%97%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</link>
+    <pubDate>Thu, 31 Mar 2022 12:08:18 &#43;0800</pubDate><author>
+                    <name>方里明</name><uri>https://limingfang.github.io</uri><email>limingfang97@outlook.com</email></author><guid>http://example.org/posts/%E6%A8%A1%E5%9D%97%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</guid>
+    <description><![CDATA[DonkeyLeveldb 综述本文对 DonkeyLeveldb 关键模块、流程等做个综述，使得整体有更好的认知，在后续开发的时候也不迷路。 主要参考《leveldb handbook》和《lev]]></description>
+</item><item>
     <title>LevelDB学习——2、SkipList</title>
     <link>http://example.org/posts/skiplist/</link>
     <pubDate>Sun, 13 Mar 2022 12:08:18 &#43;0800</pubDate><author>
