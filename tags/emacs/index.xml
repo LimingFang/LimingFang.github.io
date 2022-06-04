@@ -1,0 +1,13 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>emacs - 标签 - Leo&#39;s Blog</title>
+        <link>http://example.org/tags/emacs/</link>
+        <description>emacs - 标签 - Leo&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 04 Jun 2022 12:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/emacs/" rel="self" type="application/rss+xml" /><item>
+    <title>Debug in dap-mode for c&#43;&#43; and rust</title>
+    <link>http://example.org/posts/dap-debug/</link>
+    <pubDate>Sat, 04 Jun 2022 12:08:18 &#43;0800</pubDate><author>
+                    <name>方里明</name><uri>https://limingfang.github.io</uri><email>limingfang97@outlook.com</email></author><guid>http://example.org/posts/dap-debug/</guid>
+    <description><![CDATA[引言本文介绍在 emacs 中如何 debug c++、rust。 背景介绍在 editors/IDE 中为不同语言适配不同 debugger 非常麻烦，因为没有统一的 API，任意一个组合都需要进行适配。 随后]]></description>
+</item></channel>
+</rss>
