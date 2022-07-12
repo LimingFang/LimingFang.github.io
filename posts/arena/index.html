@@ -93,18 +93,18 @@
     <a href="#arena" class="header-mark"></a>Arena</h1><p>​		Arena 在 Leveldb 中负责对 Memtable 内存管理，加快了 Memtable 使用堆内存时的效率。相关文件是 <code>util/arena.h</code>,<code>util/arena.cc</code>。</p>
 <p>​		Arena 管理堆内存的逻辑是：以4KB大小 <code>kBlockSize</code> 进行堆内存申请，然后切分给 memtable 使用。这样 memtable 不用每次申请堆内存时都调用 <code>new</code></p>
 <p>​		Arena 提供给 memtable 的接口如下：Arena 不提供释放堆内存的接口，因为 memtable 在销毁时才释放内存。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// Return a pointer to a newly allocated memory block of &#34;bytes&#34; bytes.
-</span><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">Allocate</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
-
-<span class="c1">// Allocate memory with the normal alignment guarantees provided by malloc.
-</span><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">AllocateAligned</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
-
-<span class="c1">// Returns an estimate of the total memory usage of data allocated
-</span><span class="c1">// by the arena.
-</span><span class="c1"></span><span class="n">size_t</span> <span class="nf">MemoryUsage</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="n">memory_usage_</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div><h2 id="内存管理模型" class="headerLink">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// Return a pointer to a newly allocated memory block of &#34;bytes&#34; bytes.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">Allocate</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Allocate memory with the normal alignment guarantees provided by malloc.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">char</span><span class="o">*</span> <span class="nf">AllocateAligned</span><span class="p">(</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Returns an estimate of the total memory usage of data allocated
+</span></span></span><span class="line"><span class="cl"><span class="c1">// by the arena.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">size_t</span> <span class="nf">MemoryUsage</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">memory_usage_</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="内存管理模型" class="headerLink">
     <a href="#%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e6%a8%a1%e5%9e%8b" class="header-mark"></a>内存管理模型</h2><p>​		Arena 中内存管理非常简单，就是一个堆内存块数组，每个大小为 <code>kBlockSize</code> = 4KB，每次只有一个块是活跃的，分配逻辑如下：</p>
 <!-- raw HTML omitted -->
 <p>​		内存分配需要注意的问题是，如果当前剩余的不够怎么办，是否浪费剩余空间在向系统申请一块。Arena 进行分类讨论，如果申请的比较大，则干脆分配一个新的，剩下的还可以接着用；如果申请的比较小，比如小于1KB，此时很有可能剩余空间非常小，因此浪费掉也无所谓。因此Arena理论上最多浪费25%的空间。</p>
@@ -142,7 +142,7 @@
 </article></div>
         </main><footer class="footer">
         <div class="footer-container"><div class="footer-line">
-                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.101.0">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
             <div class="footer-line"></div>
             <div class="footer-line">

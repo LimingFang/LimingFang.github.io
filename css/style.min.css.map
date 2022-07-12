@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "style.min.css",
-	"sourceRoot": "/Users/fangliming/Documents/GitHub/workingset/leo.github.io",
+	"sourceRoot": "/Users/fangliming/Dropbox/GithubRepo/leo.github.io",
 	"sources": [
 		"themes/DoIt/assets/css/style.scss",
 		"themes/DoIt/assets/css/_variables.scss",

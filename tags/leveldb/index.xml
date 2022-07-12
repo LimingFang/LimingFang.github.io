@@ -3,7 +3,13 @@
         <title>LevelDB - 标签 - Leo&#39;s Blog</title>
         <link>http://example.org/tags/leveldb/</link>
         <description>LevelDB - 标签 - Leo&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 07 Mar 2022 21:08:18 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leveldb/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 12 Jul 2022 00:00:00 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leveldb/" rel="self" type="application/rss+xml" /><item>
+    <title>compaction 时机分析</title>
+    <link>http://example.org/posts/compaction-time/</link>
+    <pubDate>Tue, 12 Jul 2022 00:00:00 &#43;0800</pubDate><author>
+                    <name>方里明</name><uri>https://limingfang.github.io</uri><email>limingfang97@outlook.com</email></author><guid>http://example.org/posts/compaction-time/</guid>
+    <description><![CDATA[引言用户不断向 leveldb 写数据，这可能暂存在 memtable 或者 sst files，后者是最终存的地方。从 memtable dump 到第一层 sst 称为 minor compaction，不同 sst level 之间的整理称]]></description>
+</item><item>
     <title>LevelDB学习——1、SkipList</title>
     <link>http://example.org/posts/skiplist/</link>
     <pubDate>Mon, 07 Mar 2022 21:08:18 &#43;0800</pubDate><author>

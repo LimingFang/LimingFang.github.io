@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">compaction 时机分析 - Leo&#39;s Blog</title><meta name="Description" content=""><meta property="og:title" content="compaction 时机分析" />
+<meta property="og:description" content="引言用户不断向 leveldb 写数据，这可能暂存在 memtable 或者 sst files，后者是最终存的地方。从 memtable dump 到第一层 sst 称为 minor compaction，不同 sst level 之间的整理称" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/compaction-time/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-12T00:00:00+08:00" />
+<meta property="article:modified_time" content="2022-07-12T00:00:00+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="compaction 时机分析"/>
+<meta name="twitter:description" content="引言用户不断向 leveldb 写数据，这可能暂存在 memtable 或者 sst files，后者是最终存的地方。从 memtable dump 到第一层 sst 称为 minor compaction，不同 sst level 之间的整理称"/>
+<meta name="application-name" content="Leo&#39;s Blog">
+<meta name="apple-mobile-web-app-title" content="Leo&#39;s Blog">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/compaction-time/" /><link rel="prev" href="http://example.org/posts/dap-debug/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "compaction 时机分析",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/compaction-time\/"
+        },"genre": "posts","keywords": "LevelDB","wordcount":  636 ,
+        "url": "http:\/\/example.org\/posts\/compaction-time\/","datePublished": "2022-07-12T00:00:00+08:00","dateModified": "2022-07-12T00:00:00+08:00","publisher": {
+            "@type": "Organization",
+            "name": "作者"},"authors": [{
+                    "@type": "Person",
+                    "name": "方里明"
+                }],"description": ""
+    }
+    </script></head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><span class="menu-item delimiter"></span><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">compaction 时机分析</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://example.org/authors/leo'>方里明</a></span>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/leveldb%E5%AD%A6%E4%B9%A0/"><i class="far fa-folder fa-fw"></i>LevelDB学习</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-07-12">2022-07-12</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-07-12">2022-07-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 636 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="content" id="content"><h2 id="引言" class="headerLink">
+    <a href="#%e5%bc%95%e8%a8%80" class="header-mark"></a>引言</h2><p>用户不断向 leveldb 写数据，这可能暂存在 memtable 或者 sst files，后者是最终存的地方。从 memtable dump 到第一层 sst 称为 minor compaction，不同 sst level 之间的整理称为 major compaction。本文重点分析 major+minor 触发过程。</p>
+<h2 id="compaction-thread" class="headerLink">
+    <a href="#compaction-thread" class="header-mark"></a>compaction thread</h2><p>leveldb 除了用户线程，只有一个后台线程运行，该线程即 compaction thread,该线程不断尝试从 job queue 中获取任务。 <code>MaybeScheduleCompaction</code> 则试图向 job queue 中通过 <code>Schedule</code> 添加任务，具体是否添加 compaction job 判断如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">background_compaction_scheduled_</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Already scheduled
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">shutting_down_</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// DB is being deleted; no more background compactions
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bg_error_</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Already got an error; no more changes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">imm_</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">&amp;&amp;</span> <span class="n">manual_compaction_</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">	   <span class="o">!</span><span class="n">versions_</span><span class="o">-&gt;</span><span class="n">NeedsCompaction</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// No work to be done
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">background_compaction_scheduled_</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">env_</span><span class="o">-&gt;</span><span class="n">Schedule</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DBImpl</span><span class="o">::</span><span class="n">BGWork</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>排除关机、出错等非正常原因，compaction 触发分三种：</p>
+<ul>
+<li>存在 imm =&gt; minor compaction</li>
+<li>manual compaction（不考虑）</li>
+<li>major compaction</li>
+</ul>
+<figure><img src="/ox-hugo/background%20job.png"/>
+</figure>
+
+<h2 id="major-compaction" class="headerLink">
+    <a href="#major-compaction" class="header-mark"></a>major compaction</h2><p>一共由两种 compaction type：size、seek.</p>
+<p>leveldb sst 一共分7层，理想情况下，从 L1=10MB 开始，每一层理想容量都是上一层10倍。如果某一层总大小超出阈值或者 L0 文件超过默认4个，则开启一次 size compaction，这保证了 L0 文件个数不是很多，以及定期清理了异地更新导致的过期数据，以及通过 compaction 时保证同一层文件有序性，提供读取效率。</p>
+<p>seek compaction 则是因为不同层之间 key 可能互相重叠：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">L[k] 某个 sst = {10,12,21}, L[k+1] 某个 sst = {11,13,14}
+</span></span></code></pre></div><p>那么当查询 key=13 的时候，L[k] 这个文件是无效查询。如果它和同一层其他文件暂时大小不超标，那就无法 compaction，次数多了之后会拖慢效率。因此规定每个 sst 都有一个 allowed_seek 指标，无效 seek 次数超标了则单独 compact 该 sst</p>
+<h2 id="打分机制" class="headerLink">
+    <a href="#%e6%89%93%e5%88%86%e6%9c%ba%e5%88%b6" class="header-mark"></a>打分机制</h2><p>通过打分机制决定是否要进行 compaction，打分本身则是在 <code>Finalize</code> 中完成，前后逻辑在另一篇文章中细说。</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-07-12</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leveldb/">LevelDB</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/dap-debug/" class="prev" rel="prev" title="Debug in dap-mode for c&#43;&#43; and rust"><i class="fas fa-angle-left fa-fw"></i>Debug in dap-mode for c&#43;&#43; and rust</a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.101.0">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":10},"comment":{}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script></div>
+</body>
+
+</html>

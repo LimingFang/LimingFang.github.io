@@ -109,23 +109,23 @@
 <p>​		leveldb 中 skiplist 是递增存放的，</p>
 <p>​		其他的下面细说。</p>
 <h2 id="node" class="headerLink">
-    <a href="#node" class="header-mark"></a>Node</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Comparator</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="nc">SkipList</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Comparator</span><span class="o">&gt;::</span><span class="n">Node</span> <span class="p">{</span>
-  <span class="k">explicit</span> <span class="nf">Node</span><span class="p">(</span><span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="o">:</span> <span class="n">key</span><span class="p">(</span><span class="n">key</span><span class="p">){};</span>
-  <span class="kt">void</span> <span class="nf">SetNext</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span> <span class="n">next</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span> <span class="p">}</span>
-
-  <span class="n">Key</span> <span class="n">key</span><span class="p">;</span>
-
- <span class="k">private</span><span class="o">:</span>
-  <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">[</span><span class="n">kMaxHeight</span><span class="p">];</span>
-<span class="p">};</span>
-</code></pre></div><p>​		Node 中不需要存放当前节点的高度。因为 <code>FindGreaterOrEqual</code>返回的 prev 一定是在相应层上有意义的，因为 <code>FindGreaterOrEqual</code> 逻辑是从当前有效的最高高度开始找，如果高度-1了一定是因为下个节点在对应高度有意义。</p>
+    <a href="#node" class="header-mark"></a>Node</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Comparator</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">SkipList</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">Comparator</span><span class="o">&gt;::</span><span class="n">Node</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">explicit</span> <span class="nf">Node</span><span class="p">(</span><span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">)</span> <span class="o">:</span> <span class="n">key</span><span class="p">(</span><span class="n">key</span><span class="p">){};</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">SetNext</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span> <span class="n">next</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">Key</span> <span class="n">key</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">[</span><span class="n">kMaxHeight</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><p>​		Node 中不需要存放当前节点的高度。因为 <code>FindGreaterOrEqual</code>返回的 prev 一定是在相应层上有意义的，因为 <code>FindGreaterOrEqual</code> 逻辑是从当前有效的最高高度开始找，如果高度-1了一定是因为下个节点在对应高度有意义。</p>
 <h2 id="查询-1" class="headerLink">
     <a href="#%e6%9f%a5%e8%af%a2-1" class="header-mark"></a>查询</h2><p>​		利用 <code>FindGreaterOrEqual</code> 找到 key 非递减的 Node。tailer 对应的 key 是无穷大的，因此一定存在这样一个 Node。</p>
 <p>​		如果 Node 是 tailer，或者 Node.key 不对，那么就不存在，否则就存在。</p>
 <h2 id="插入-1" class="headerLink">
-    <a href="#%e6%8f%92%e5%85%a5-1" class="header-mark"></a>插入</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="n">Node</span><span class="o">*</span> <span class="nf">FindGreaterOrEqual</span><span class="p">(</span><span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span> <span class="n">Node</span><span class="o">**</span> <span class="n">prev</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
-</code></pre></div><p>​		<code>prev</code> 存放了各层的前驱节点。</p>
+    <a href="#%e6%8f%92%e5%85%a5-1" class="header-mark"></a>插入</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="nf">FindGreaterOrEqual</span><span class="p">(</span><span class="k">const</span> <span class="n">Key</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span> <span class="n">Node</span><span class="o">**</span> <span class="n">prev</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span></span></code></pre></div><p>​		<code>prev</code> 存放了各层的前驱节点。</p>
 <p>​		leveldb 的 skiplist 不允许重复 key 存在。因此假设找到一个合适的 Node，我们首先计算出新节点的高度 h，然后相当于对[1,h]层的单链表做一次插入。</p>
 </div>
 
@@ -158,7 +158,7 @@
 </article></div>
         </main><footer class="footer">
         <div class="footer-container"><div class="footer-line">
-                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.101.0">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
             <div class="footer-line"></div>
             <div class="footer-line">

@@ -20,7 +20,7 @@
 
 <meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/dap-debug/" /><link rel="prev" href="http://example.org/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/dap-debug/" /><link rel="prev" href="http://example.org/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" /><link rel="next" href="http://example.org/posts/compaction-time/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
         <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
         <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
     {
@@ -31,7 +31,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/dap-debug\/"
-        },"genre": "posts","keywords": "emacs, tools","wordcount":  1016 ,
+        },"genre": "posts","keywords": "emacs, tools","wordcount":  1017 ,
         "url": "http:\/\/example.org\/posts\/dap-debug\/","datePublished": "2022-06-04T12:08:18+08:00","dateModified": "2022-06-04T12:08:18+08:00","publisher": {
             "@type": "Organization",
             "name": "作者"},"authors": [{
@@ -87,7 +87,7 @@
             <div class="post-meta-line">
                 <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://example.org/authors/leo'>方里明</a></span>
                 </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/emacs-learning/"><i class="far fa-folder fa-fw"></i>emacs learning</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-06-04">2022-06-04</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-06-04">2022-06-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1016 字&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-06-04">2022-06-04</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-06-04">2022-06-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1017 字&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 3 分钟&nbsp;</div>
         </div><div class="content" id="content"><h1 id="引言" class="headerLink">
     <a href="#%e5%bc%95%e8%a8%80" class="header-mark"></a>引言</h1><p>本文介绍在 emacs 中如何 debug c++、rust，以及 emacs 中 debug 系统的一些概念。</p>
@@ -122,29 +122,29 @@
     <a href="#debugger" class="header-mark"></a>debugger</h2><p>没啥可谈的，就是 lldb、gdb</p>
 <h2 id="mimachine-interface" class="headerLink">
     <a href="#mimachine-interface" class="header-mark"></a>MI(Machine Interface)</h2><p>MI 是 text-based 可执行程序，它最初是形态是 GDB/MI，负责与 GDB 交互，用于大型系统中支持 GDB，这些大型系统中（例如 CLion）某个模块作为 GDB front end ，其不直接与 GDB 交互，而是与 GDB/MI。MI 定义了很多 command，例如“设置断点”</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt">-&gt; -break-insert main
-&lt;- ^done,bkpt={number=&#34;1&#34;,type=&#34;breakpoint&#34;,disp=&#34;keep&#34;,
-    enabled=&#34;y&#34;,addr=&#34;0x08048564&#34;,func=&#34;main&#34;,file=&#34;myprog.c&#34;,
-    fullname=&#34;/home/nickrob/myprog.c&#34;,line=&#34;68&#34;,thread-groups=[&#34;i1&#34;],
-    times=&#34;0&#34;}
-&lt;- (gdb)
-</code></pre></div><p>同样的，lldb-mi 也是 MI，但它与 lldb 交互。
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">-&gt; -break-insert main
+</span></span><span class="line"><span class="cl">&lt;- ^done,bkpt={number=&#34;1&#34;,type=&#34;breakpoint&#34;,disp=&#34;keep&#34;,
+</span></span><span class="line"><span class="cl">    enabled=&#34;y&#34;,addr=&#34;0x08048564&#34;,func=&#34;main&#34;,file=&#34;myprog.c&#34;,
+</span></span><span class="line"><span class="cl">    fullname=&#34;/home/nickrob/myprog.c&#34;,line=&#34;68&#34;,thread-groups=[&#34;i1&#34;],
+</span></span><span class="line"><span class="cl">    times=&#34;0&#34;}
+</span></span><span class="line"><span class="cl">&lt;- (gdb)
+</span></span></code></pre></div><p>同样的，lldb-mi 也是 MI，但它与 lldb 交互。
 这里介绍 MI 是因为有些 Adapter 会涉及 MI</p>
 <h1 id="setup" class="headerLink">
     <a href="#setup" class="header-mark"></a>setup</h1><h2 id="emacs-part-1" class="headerLink">
     <a href="#emacs-part-1" class="header-mark"></a>emacs part</h2><p>安装 dap-mode，这是 dap client for emacs，然后修改下配置:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-lisp" data-lang="lisp">  <span class="c1">;; basic use</span>
-  <span class="p">(</span><span class="nf">use-package</span> <span class="nv">dap-mode</span>
-    <span class="ss">:config</span>
-  <span class="c1">;;; use codelldb for c++ &amp;&amp; rust.</span>
-    <span class="p">(</span><span class="k">setq</span> <span class="nv">dap-codelldb-download-url</span> <span class="s">&#34;https://github.com/vadimcn/vscode-lldb/releases/download/v1.7.0/codelldb-aarch64-darwin.vsix&#34;</span><span class="p">)</span>
-    <span class="p">(</span><span class="nf">require</span> <span class="ss">&#39;dap-codelldb</span><span class="p">)</span>
-    <span class="p">(</span><span class="nv">dap-codelldb-setup</span><span class="p">)</span>
-    <span class="ss">:custom</span>
-    <span class="p">(</span><span class="nv">dap-auto-configure-mode</span> <span class="no">t</span>                       <span class="s">&#34;Automatically configure dap.&#34;</span><span class="p">)</span>
-    <span class="p">(</span><span class="nv">dap-auto-configure-features</span>
-     <span class="o">&#39;</span><span class="p">(</span><span class="nv">sessions</span> <span class="nv">locals</span> <span class="nv">breakpoints</span> <span class="nv">expressions</span> <span class="nv">tooltip</span><span class="p">)</span>  <span class="s">&#34;Remove the button panel in the top.&#34;</span><span class="p">)</span>
-</code></pre></div><p>配置做了如下几件事：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-lisp" data-lang="lisp"><span class="line"><span class="cl">  <span class="c1">;; basic use</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(</span><span class="nf">use-package</span> <span class="nv">dap-mode</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">:config</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">;;; use codelldb for c++ &amp;&amp; rust.</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="k">setq</span> <span class="nv">dap-codelldb-download-url</span> <span class="s">&#34;https://github.com/vadimcn/vscode-lldb/releases/download/v1.7.0/codelldb-aarch64-darwin.vsix&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="nf">require</span> <span class="ss">&#39;dap-codelldb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="nv">dap-codelldb-setup</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">:custom</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="nv">dap-auto-configure-mode</span> <span class="no">t</span>                       <span class="s">&#34;Automatically configure dap.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="nv">dap-auto-configure-features</span>
+</span></span><span class="line"><span class="cl">     <span class="o">&#39;</span><span class="p">(</span><span class="nv">sessions</span> <span class="nv">locals</span> <span class="nv">breakpoints</span> <span class="nv">expressions</span> <span class="nv">tooltip</span><span class="p">)</span>  <span class="s">&#34;Remove the button panel in the top.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>配置做了如下几件事：</p>
 <ul>
 <li>load &amp;&amp; config dap-mode, dap-codelldb, download codelldb.</li>
 <li>debug UI 配置
@@ -154,39 +154,39 @@
     <a href="#da-partchoice" class="header-mark"></a>DA part(choice)</h2><p>在选择 DA 时重点考虑 features + 维护情况 + 稳定性。像 cpptools 是 vscode 官方 c++ 插件，按道理是没问题的，但是在 M1 Mac(Monterey) 上有时候会卡死，详见<a href="https://github.com/microsoft/vscode-cpptools/issues/9488" target="_blank" rel="noopener noreffer">issue1</a> + <a href="https://github.com/lldb-tools/lldb-mi/issues/101" target="_blank" rel="noopener noreffer">issue2</a>，结果是 lldb-mi 的问题。剩下的比较有名的还有 codelldb(vscode-lldb) 和 lldb-vscode，目前暂时选择前者，因为它更活跃且 c++、rust 都支持。</p>
 <h2 id="config-launchjson" class="headerLink">
     <a href="#config-launchjson" class="header-mark"></a>config launch.json</h2><p>emacs dap client 需要告知 DA debug 时的一些参数配置，例如哪个程序，用哪个 debugger，是 attach 到 debuggee 还是单独 launch debuggee。这些设置放在文件 /launch.json/ 中，格式是:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="p">{</span>
-      <span class="s2">&#34;configurations&#34;</span><span class="o">:</span>
-      <span class="p">[</span>
-	  <span class="p">{</span>
-	      <span class="s2">&#34;&lt;attribute one&gt;&#34;</span><span class="o">:</span><span class="s2">&#34;&lt;value one&gt;&#34;</span><span class="p">,</span>
-	  <span class="p">}</span>
-      <span class="p">]</span>
-  <span class="p">}</span>
-</code></pre></div><p>这些 attributes 是由 DA 控制（决定）的，与 DAP 无关，下面列下使用的 c++、rust 配置：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js">  <span class="p">{</span>
-      <span class="s2">&#34;configurations&#34;</span><span class="o">:</span>
-      <span class="p">[</span>
-	  <span class="p">{</span>
-	      <span class="s2">&#34;type&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;request&#34;</span><span class="o">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;name&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb for rust&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;cargo&#34;</span><span class="o">:</span> <span class="p">{</span>
-		  <span class="s2">&#34;args&#34;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&#34;run&#34;</span><span class="p">,</span><span class="s2">&#34;--bin&#34;</span><span class="p">]</span>
-	      <span class="p">},</span>
-	      <span class="s2">&#34;sourceLanguages&#34;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&#34;rust&#34;</span><span class="p">],</span>
-	  <span class="p">},</span>
-	  <span class="p">{</span>
-	      <span class="s2">&#34;type&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;request&#34;</span><span class="o">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;name&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb for c++&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;program&#34;</span><span class="o">:</span> <span class="s2">&#34;${workspaceFolder}/build/${fileBasenameNoExtension}&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;args&#34;</span><span class="o">:</span> <span class="p">[],</span>
-	      <span class="s2">&#34;stopAtEntry&#34;</span><span class="o">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
-	      <span class="s2">&#34;cwd&#34;</span><span class="o">:</span> <span class="s2">&#34;${workspaceFolder}&#34;</span><span class="p">,</span>
-	  <span class="p">}</span>
-      <span class="p">]</span>
-  <span class="p">}</span>
-</code></pre></div><h3 id="outro" class="headerLink">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;configurations&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;&lt;attribute one&gt;&#34;</span><span class="o">:</span><span class="s2">&#34;&lt;value one&gt;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><p>这些 attributes 是由 DA 控制（决定）的，与 DAP 无关，下面列下使用的 c++、rust 配置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;configurations&#34;</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;type&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;request&#34;</span><span class="o">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;name&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb for rust&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;cargo&#34;</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		  <span class="s2">&#34;args&#34;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&#34;run&#34;</span><span class="p">,</span><span class="s2">&#34;--bin&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;sourceLanguages&#34;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&#34;rust&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;type&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;request&#34;</span><span class="o">:</span> <span class="s2">&#34;launch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;name&#34;</span><span class="o">:</span> <span class="s2">&#34;codelldb for c++&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;program&#34;</span><span class="o">:</span> <span class="s2">&#34;${workspaceFolder}/build/${fileBasenameNoExtension}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;args&#34;</span><span class="o">:</span> <span class="p">[],</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;stopAtEntry&#34;</span><span class="o">:</span> <span class="s2">&#34;true&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	      <span class="s2">&#34;cwd&#34;</span><span class="o">:</span> <span class="s2">&#34;${workspaceFolder}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></div><h3 id="outro" class="headerLink">
     <a href="#outro" class="header-mark"></a>outro</h3><p>在写 config 的时候主要参考 DA manual + <a href="https://code.visualstudio.com/docs" target="_blank" rel="noopener noreffer">vscode 官网</a></p>
 <h1 id="debug" class="headerLink">
     <a href="#debug" class="header-mark"></a>debug</h1><p>配置 debug ui 的时候有个 <code>dap-hydra</code> 的东西，可以方便的进行设置断点、continue 等操作，只需要在 use-package 设置绑定下快捷键即可。
@@ -229,12 +229,13 @@
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" class="prev" rel="prev" title="rCore学习——1、应用程序与基本执行环境"><i class="fas fa-angle-left fa-fw"></i>rCore学习——1、应用程序与基本执行环境</a></div>
+    <div class="post-nav"><a href="/posts/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%8E%E5%9F%BA%E6%9C%AC%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" class="prev" rel="prev" title="rCore学习——1、应用程序与基本执行环境"><i class="fas fa-angle-left fa-fw"></i>rCore学习——1、应用程序与基本执行环境</a>
+            <a href="/posts/compaction-time/" class="next" rel="next" title="compaction 时机分析">compaction 时机分析<i class="fas fa-angle-right fa-fw"></i></a></div>
 </div>
 </article></div>
         </main><footer class="footer">
         <div class="footer-container"><div class="footer-line">
-                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.92.2">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.101.0">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
             <div class="footer-line"></div>
             <div class="footer-line">
