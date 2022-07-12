@@ -12,6 +12,12 @@
                     <name>方里明</name><uri>https://limingfang.github.io</uri><email>limingfang97@outlook.com</email></author><guid>http://example.org/posts/compaction-time/</guid>
     <description><![CDATA[引言用户不断向 leveldb 写数据，这可能暂存在 memtable 或者 sst files，后者是最终存的地方。从 memtable dump 到第一层 sst 称为 minor compaction，不同 sst level 之间的整理称]]></description>
 </item><item>
+    <title>minor compaction</title>
+    <link>http://example.org/posts/minor-compaction/</link>
+    <pubDate>Tue, 12 Jul 2022 00:00:00 &#43;0800</pubDate><author>
+                    <name>方里明</name><uri>https://limingfang.github.io</uri><email>limingfang97@outlook.com</email></author><guid>http://example.org/posts/minor-compaction/</guid>
+    <description><![CDATA[注【还在完善中】 引言leveldb 中只有一个 active memtable 和一个 imm memtable,前文提到，当内存中存在 imm 时就会发生 minor compaction,本文介绍]]></description>
+</item><item>
     <title>Debug in dap-mode for c&#43;&#43; and rust</title>
     <link>http://example.org/posts/dap-debug/</link>
     <pubDate>Sat, 04 Jun 2022 12:08:18 &#43;0800</pubDate><author>

@@ -7,6 +7,7 @@
             <loc>http://example.org/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/leveldb/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
             <loc>http://example.org/categories/leveldb%E5%AD%A6%E4%B9%A0/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/posts/minor-compaction/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/</loc><lastmod>2022-07-12T00:00:00&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/dap-debug/</loc><lastmod>2022-06-04T12:08:18&#43;08:00</lastmod></url><url>

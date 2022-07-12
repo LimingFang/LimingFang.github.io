@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">minor compaction - Leo&#39;s Blog</title><meta name="Description" content=""><meta property="og:title" content="minor compaction" />
+<meta property="og:description" content="注【还在完善中】 引言leveldb 中只有一个 active memtable 和一个 imm memtable,前文提到，当内存中存在 imm 时就会发生 minor compaction,本文介绍" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/minor-compaction/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-12T00:00:00+08:00" />
+<meta property="article:modified_time" content="2022-07-12T00:00:00+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="minor compaction"/>
+<meta name="twitter:description" content="注【还在完善中】 引言leveldb 中只有一个 active memtable 和一个 imm memtable,前文提到，当内存中存在 imm 时就会发生 minor compaction,本文介绍"/>
+<meta name="application-name" content="Leo&#39;s Blog">
+<meta name="apple-mobile-web-app-title" content="Leo&#39;s Blog">
+
+<meta name="theme-color" content="#f8f8f8"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="canonical" href="http://example.org/posts/minor-compaction/" /><link rel="prev" href="http://example.org/posts/dap-debug/" /><link rel="next" href="http://example.org/posts/compaction-time/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "minor compaction",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/minor-compaction\/"
+        },"genre": "posts","keywords": "LevelDB","wordcount":  1376 ,
+        "url": "http:\/\/example.org\/posts\/minor-compaction\/","datePublished": "2022-07-12T00:00:00+08:00","dateModified": "2022-07-12T00:00:00+08:00","publisher": {
+            "@type": "Organization",
+            "name": "作者"},"authors": [{
+                    "@type": "Person",
+                    "name": "方里明"
+                }],"description": ""
+    }
+    </script></head>
+
+<body header-desktop="" header-mobile=""><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('' === 'light' || '' === 'dark' || '' === 'black') setTheme(''), saveTheme(''); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><span class="menu-item delimiter"></span><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Leo&#39;s Blog">Leo&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a href="#" onclick="return false;" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">minor compaction</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><span class='author'><i class="author fas fa-user-circle fa-fw"></i><span class='screen-reader-text'>  </span><a href='http://example.org/authors/leo'>方里明</a></span>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/leveldb%E5%AD%A6%E4%B9%A0/"><i class="far fa-folder fa-fw"></i>LevelDB学习</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-07-12">2022-07-12</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-07-12">2022-07-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1376 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 3 分钟&nbsp;</div>
+        </div><div class="content" id="content"><h2 id="注" class="headerLink">
+    <a href="#%e6%b3%a8" class="header-mark"></a>注</h2><p>【还在完善中】</p>
+<h2 id="引言" class="headerLink">
+    <a href="#%e5%bc%95%e8%a8%80" class="header-mark"></a>引言</h2><p>leveldb 中只有一个 active memtable 和一个 imm memtable,前文提到，当内存中存在 imm 时就会发生 minor compaction,本文介绍 minor compaction 完整的运行流程。</p>
+<h2 id="what" class="headerLink">
+    <a href="#what" class="header-mark"></a>what</h2><p>简单介绍下 LSMT 个人的理解。LSMT 通过 append-only 模式写 log，其利用了机械磁盘或者顺序磁盘的顺序写远大于随机写的特性。同时在磁盘上维护数据的有序性，提升了读取性能。在具体实现时，由于内存随机读写非常快，因此内存中直接维护好有序性，然后 dump 该数据结构到磁盘上时采用顺序写，这个 dump 的过程就是 minor compaction,下图是一些硬件数据举例：intel D7-P5620 系列-14704 顺序写比随机写快了将近3倍（假设随机读大小是4KB），而机械硬盘更离谱，十倍也是有可能的。</p>
+<figure><img src="/ox-hugo/ssd.png"/>
+</figure>
+
+<h2 id="before" class="headerLink">
+    <a href="#before" class="header-mark"></a>before</h2><p>首先看从 write 到 minor compaction 会发生什么：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">Status</span> <span class="n">DBImpl</span><span class="o">::</span><span class="n">Write</span><span class="p">(</span><span class="k">const</span> <span class="n">WriteOptions</span><span class="o">&amp;</span> <span class="n">options</span><span class="p">,</span> <span class="n">WriteBatch</span><span class="o">*</span> <span class="n">updates</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">Status</span> <span class="n">status</span> <span class="o">=</span> <span class="n">MakeRoomForWrite</span><span class="p">(</span><span class="n">updates</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p>每次打算向 memtable 里写都需要先准备好空间，有很多情况下我们不能写入，或者需要控制写入速度，具体看 <code>MakeRoomForWrite</code>,决定写入状态的变量包括{L0文件个数、imm 是否已生成、是否强制 compaction}，这一堆 if-else 个人理解如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">首先看是否需要流控，即使 active memetable 有空间也需要停一停写入（流控过或者 force compaction 是例外）；然后在看 mem 是否有空间，只要有空间就允许写入，即使L0文件已经很多了；然后再看 imm 是否被 compact，这里先看 mem 再看 imm 是因为 mem 只有逼不得已写不下才会考虑冻结；不过冻结也不是一定顺利的，它必须在L0文件没超上限的情况下。
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">Status</span> <span class="n">DBImpl</span><span class="o">::</span><span class="n">MakeRoomForWrite</span><span class="p">(</span><span class="kt">bool</span> <span class="n">force</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="kt">bool</span> <span class="n">allow_delay</span> <span class="o">=</span> <span class="o">!</span><span class="n">force</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">Status</span> <span class="n">s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bg_error_</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">allow_delay</span> <span class="o">&amp;&amp;</span> <span class="n">versions_</span><span class="o">-&gt;</span><span class="n">NumLevelFiles</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span>
+</span></span><span class="line"><span class="cl">				<span class="n">config</span><span class="o">::</span><span class="n">kL0_SlowdownWritesTrigger</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mutex_</span><span class="p">.</span><span class="n">Unlock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">env_</span><span class="o">-&gt;</span><span class="n">SleepForMicroseconds</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">allow_delay</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>  <span class="c1">// Do not delay a single write more than once
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mutex_</span><span class="p">.</span><span class="n">Lock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="o">!</span><span class="n">force</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">	     <span class="p">(</span><span class="n">mem_</span><span class="o">-&gt;</span><span class="n">ApproximateMemoryUsage</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">options_</span><span class="p">.</span><span class="n">write_buffer_size</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">imm_</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">background_work_finished_signal_</span><span class="p">.</span><span class="n">Wait</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">versions_</span><span class="o">-&gt;</span><span class="n">NumLevelFiles</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">config</span><span class="o">::</span><span class="n">kL0_StopWritesTrigger</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">background_work_finished_signal_</span><span class="p">.</span><span class="n">Wait</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// do minor compaction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"> <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>当 mem 真的走投无路时，才会进行 minor compaction，入口函数是 <code>CompactMemTable</code>.</p>
+<h2 id="do-minor-compaction" class="headerLink">
+    <a href="#do-minor-compaction" class="header-mark"></a>do minor compaction</h2><p>本节正式介绍 minor compaction. 每发生一次 compaction，意味着有新版本生成，因此核心工作就是两个：</p>
+<ul>
+<li>写入数据，计算 version 变化</li>
+<li>生成新 version</li>
+</ul>
+<h3 id="写入数据" class="headerLink">
+    <a href="#%e5%86%99%e5%85%a5%e6%95%b0%e6%8d%ae" class="header-mark"></a>写入数据</h3><p>![](/ox-hugo/compact memtable.png)
+重点是两个函数: <code>WriteLevel0Table</code> + <code>BuildTable</code>,后者负责往磁盘上某个文件写 sst，前者在此基础上做一些辅助善后工作，例如挑选这个写好的 sst 文件该属于哪一层，例如清理 db 文件夹内多余的文件。</p>
+<p>这里不讨论 sst 格式等细节（其他文章分析），因为 <code>BuildTable</code> 利用 Builder 这一抽象很好的将细节封装了起来，这一思想在整个 leveldb 中有很多应用。我们只需要知道它根据预定的格式写入了一个 sst file 即可。此外还要关注 <code>FileMetaData</code> 数据结构：目前只是用了最基本的{序号、大小}以及辅助 compaction 判断的 {minkey,maxkey}.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">FileMetaData</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">uint64_t</span> <span class="n">number</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="n">file_size</span><span class="p">;</span>    <span class="c1">// File size in bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">InternalKey</span> <span class="n">smallest</span><span class="p">;</span>  <span class="c1">// Smallest internal key served by table
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">InternalKey</span> <span class="n">largest</span><span class="p">;</span>   <span class="c1">// Largest internal key served by table
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></div><p>然后是为生成的 sst file 挑选合适的 level: <code>PickLevelForMemTableOutput</code>,不过其实直接放在 L0 没有什么影响,因为 L0 允许 overlap，该函数存在目的是，尽可能合理地下推 sst file,控制 L0 数量。</p>
+<p>然后是生成 version edit.很简单，只是多了一个 sst file,我们将{序号、大小}等信息传入即可。</p>
+<h3 id="生成新-version" class="headerLink">
+    <a href="#%e7%94%9f%e6%88%90%e6%96%b0-version" class="header-mark"></a>生成新 version</h3><p><code>LogAndApply</code> 功能是根据 vedit 信息生成新的 version，然后做一些其他必要的工作。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">edit</span><span class="p">.</span><span class="n">SetPrevLogNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">edit</span><span class="p">.</span><span class="n">SetLogNumber</span><span class="p">(</span><span class="n">logfile_number_</span><span class="p">);</span>  <span class="c1">// Earlier logs no longer needed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">s</span> <span class="o">=</span> <span class="n">versions_</span><span class="o">-&gt;</span><span class="n">LogAndApply</span><span class="p">(</span><span class="o">&amp;</span><span class="n">edit</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mutex_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>首先是新 version的生成。和写 L0 文件一样，也是利用了 Builder 思想：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">Version</span><span class="o">*</span> <span class="n">v</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Version</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Builder</span> <span class="nf">builder</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="n">current_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">builder</span><span class="p">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">edit</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">builder</span><span class="p">.</span><span class="n">SaveTo</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>![](/ox-hugo/version builder.png)
+<code>Apply</code> 只是将差值数据 apply 到 builder 中记录下来， <code>SaveTo</code> 则是真正融合 vedit 和 version 计算新的不同 level sst files,由于这部分 major 和 minor compaction 是复用的，并且 minor 逻辑简化了很多，因此放在 major compaction 中介绍。</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-07-12</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leveldb/">LevelDB</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/dap-debug/" class="prev" rel="prev" title="Debug in dap-mode for c&#43;&#43; and rust"><i class="fas fa-angle-left fa-fw"></i>Debug in dap-mode for c&#43;&#43; and rust</a>
+            <a href="/posts/compaction-time/" class="next" rel="next" title="compaction 时机分析">compaction 时机分析<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">
+                    由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.101.0">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href="https://github.com/HEIGE-PCloud/DoIt" target="_blank" rel="noopener noreffer" title="DoIt 0.2.13"><i class="far fa-edit fa-fw"></i> DoIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer"></a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div class="assets"><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":10},"comment":{}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script></div>
+</body>
+
+</html>
