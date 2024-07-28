@@ -1,0 +1,104 @@
+# Base URL used when generating links to your pages
+# Set to the URL for your site
+baseURL = "https://limingfang.github.io/"
+
+# The name of this wonderful theme ;-).
+theme = "PaperMod"
+
+# Basic metadata configuration for your blog.
+title = "ʕ•ᴥ•ʔ"
+author = "LimingFang"
+copyright = "Copyright © 2024, LimingFang."
+languageCode = "en-US"
+enableEmoji = true
+[cover]
+hidden = true
+#[fa]
+#    languagedirection = "rtl"
+#    weight = 3
+#    title = "PaperMod RTL"
+#    [fa.taxonomies]
+#      category= "FAcategories"
+#      tag=  "FAtags"
+#      series= "FAseries"
+#    [[fa.menu.main]]
+#        name = "FATags"
+#          url= "fatags"
+#          weight= 10
+#    # custom params for each language should be under [langcode].parms - hugo v0.120.0
+#    [fa.params.homeInfoParams]
+#        Title= "Hi there \U0001F44B"
+#        Content="Welcome to RTL layout"
+
+[[menus.main]]
+identifier = "categories"
+name = "Categories"
+url = "categories"
+weight = 10
+[[menus.main]]
+identifier = "tags"
+name = "Tags"
+url = "tags"
+weight = 20
+[[menus.main]]
+identifier = "archives"
+name = "Archives"
+url = "archives"
+weight = 30
+
+# Generate "Bearblog"-like URLs !only!, see https://bearblog.dev/.
+disableKinds = ["taxonomy"]
+ignoreErrors = ["error-disable-taxonomy"]
+[permalinks]
+  blog = "/:slug/"
+  tags = "/blog/:slug"
+
+[params]
+  ShowBreadCrumbs = true
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  # The "description" of your website. This is used in the meta data of your generated html.
+  description = "Welcome to Leo's blog."
+
+  # The path to your "favicon". This should be a square (at least 32px x 32px) png-file.
+  # Hint: It's good practise to also put a "favicon.ico"-file into your "static"-folder.
+  favicon = "images/avatar.png"
+
+  # These "images" are used for the structured data templates. This will show up, when
+  # services like Twitter or Slack want to generate a preview of a link to your site.
+  # See https://gohugo.io/templates/internal#twitter-cards and
+  # https://gohugo.io/templates/internal#open-graph.
+  # images = ["images/share.png"]
+
+  # Another "title" :-). This one is used as the site_name on the Hugo's internal
+  # opengraph structured data template.
+  # See https://ogp.me/ and https://gohugo.io/templates/internal#open-graph.
+  title = "Hugo ʕ•ᴥ•ʔ Bear"
+
+  # This theme will, by default, inject a made-with-line at the bottom of the page.
+  # You can turn it off, but we would really appreciate if you don’t :-).
+  # hideMadeWithLine = true
+
+  # By default, this theme displays dates with a format like "02 Jan, 2006", but
+  # you can customize it by setting the `dateFormat` param in your site's config
+  # file. See [Hugo's Format function docs](https://gohugo.io/functions/format/)
+  # for details. An example TOML config that uses [ISO
+  # 8601](https://en.wikipedia.org/wiki/ISO_8601) format:
+  # dateFormat = "2006-01-02"
+[params.profileMode]
+enabled = true
+title = "Hi there \U0001F44B"
+subtitle = "这里是 🐼Leo 的 blog."
+imageUrl = "images/avatar.png"
+imageWidth = 120
+imageHeight = 120
+
+[params.homeInfoParams]
+  Title = "Hi there \U0001F44B"
+  Content = "这里是 🐼Leo 的 blog."
+[[params.socialIcons]]
+name = "zhihu"
+url = "https://www.zhihu.com/people/xiao-xiong-mao-1-18"
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/LimingFang"
