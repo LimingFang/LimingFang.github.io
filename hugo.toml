@@ -11,6 +11,7 @@ author = "LimingFang"
 copyright = "Copyright © 2024, LimingFang."
 languageCode = "en-US"
 enableEmoji = true
+publishDir = "docs"
 [cover]
 hidden = true
 #[fa]
