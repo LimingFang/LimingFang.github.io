@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Posts on ʕ•ᴥ•ʔ</title>
-    <link>https://limingfang.github.io/posts/</link>
-    <description>Recent content in Posts on ʕ•ᴥ•ʔ</description>
+    <title>Basic on ʕ•ᴥ•ʔ</title>
+    <link>https://limingfang.github.io/blog/basic/</link>
+    <description>Recent content in Basic on ʕ•ᴥ•ʔ</description>
     <generator>Hugo -- 0.131.0</generator>
     <language>en-US</language>
     <copyright>Copyright © 2024, LimingFang.</copyright>
-    <atom:link href="https://limingfang.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://limingfang.github.io/blog/basic/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IEEE754 学习</title>
       <link>https://limingfang.github.io/posts/fp32/</link>

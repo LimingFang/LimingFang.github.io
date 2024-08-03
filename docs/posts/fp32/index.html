@@ -5,10 +5,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>FP32 | ʕ•ᴥ•ʔ</title>
-<meta name="keywords" content="html">
-<meta name="description" content="This is a heading one ">
-<meta name="author" content="">
+<title>IEEE754 学习 | ʕ•ᴥ•ʔ</title>
+<meta name="keywords" content="basic">
+<meta name="description" content="TODO 排版用 latex 调整下。
+Intro 写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。
+basic 浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。 首先参考十进制科学计数法： number = base10 * 10exp, 1&lt;=base&lt;10
+IEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：
+1.25 = 1.25 * 2^0 = 1.01_2 * 2^0 0.625 = 1.25 * 2-1 = 1.01_2 * 2-1 上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。
+More Detail 以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：
+符号位 base exponent 以 FP32 为例，IEEE754 将32个 bits 如下划分： 符号位 1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。">
+<meta name="author" content="liming fang">
 <link rel="canonical" href="https://limingfang.github.io/posts/fp32/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css" integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://limingfang.github.io/favicon.ico">
@@ -58,18 +64,28 @@
 </noscript>
   
 
-<meta property="og:title" content="FP32" />
-<meta property="og:description" content="This is a heading one " />
+<meta property="og:title" content="IEEE754 学习" />
+<meta property="og:description" content="TODO 排版用 latex 调整下。
+Intro 写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。
+basic 浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。 首先参考十进制科学计数法： number = base10 * 10exp, 1&lt;=base&lt;10
+IEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：
+1.25 = 1.25 * 2^0 = 1.01_2 * 2^0 0.625 = 1.25 * 2-1 = 1.01_2 * 2-1 上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。
+More Detail 以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：
+符号位 base exponent 以 FP32 为例，IEEE754 将32个 bits 如下划分： 符号位 1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://limingfang.github.io/posts/fp32/" />
-<meta property="og:image" content="https://limingfang.github.io/images/avatar.png" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-07-28T21:29:46+08:00" />
-<meta property="article:modified_time" content="2024-07-28T21:29:46+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+<meta property="og:url" content="https://limingfang.github.io/posts/fp32/" /><meta property="article:section" content="posts" />
 
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://limingfang.github.io/images/avatar.png" />
-<meta name="twitter:title" content="FP32"/>
-<meta name="twitter:description" content="This is a heading one "/>
+<meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="IEEE754 学习"/>
+<meta name="twitter:description" content="TODO 排版用 latex 调整下。
+Intro 写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。
+basic 浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。 首先参考十进制科学计数法： number = base10 * 10exp, 1&lt;=base&lt;10
+IEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：
+1.25 = 1.25 * 2^0 = 1.01_2 * 2^0 0.625 = 1.25 * 2-1 = 1.01_2 * 2-1 上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。
+More Detail 以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：
+符号位 base exponent 以 FP32 为例，IEEE754 将32个 bits 如下划分： 符号位 1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。"/>
 
 
 <script type="application/ld+json">
@@ -86,7 +102,7 @@
     {
       "@type": "ListItem",
       "position":  2 ,
-      "name": "FP32",
+      "name": "IEEE754 学习",
       "item": "https://limingfang.github.io/posts/fp32/"
     }
   ]
@@ -96,17 +112,21 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "FP32",
-  "name": "FP32",
-  "description": "This is a heading one ",
+  "headline": "IEEE754 学习",
+  "name": "IEEE754 学习",
+  "description": "TODO 排版用 latex 调整下。\nIntro 写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。\nbasic 浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。 首先参考十进制科学计数法： number = base10 * 10exp, 1\u0026lt;=base\u0026lt;10\nIEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：\n1.25 = 1.25 * 2^0 = 1.01_2 * 2^0 0.625 = 1.25 * 2-1 = 1.01_2 * 2-1 上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。\nMore Detail 以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：\n符号位 base exponent 以 FP32 为例，IEEE754 将32个 bits 如下划分： 符号位 1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。",
   "keywords": [
-    "html"
+    "basic"
   ],
-  "articleBody": "This is a heading one ",
-  "wordCount" : "5",
+  "articleBody": "TODO 排版用 latex 调整下。\nIntro 写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。\nbasic 浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。 首先参考十进制科学计数法： number = base10 * 10exp, 1\u003c=base\u003c10\nIEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：\n1.25 = 1.25 * 2^0 = 1.01_2 * 2^0 0.625 = 1.25 * 2-1 = 1.01_2 * 2-1 上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。\nMore Detail 以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：\n符号位 base exponent 以 FP32 为例，IEEE754 将32个 bits 如下划分： 符号位 1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。\nexp \u0026 fraction 以 FP32 为例，指数部分 8-bit 能表示 [0,255]，具体分三种情况：\n全0：对应0 全1：对应 255 其他：[1,254] 其中，exp 部分不同的类别会影响 fraction 部分的解释。\n对于 case3, fraction 部分按照 1.x 形式解析（即 normalized），例如 01000..000 等于1.25。此时对于指数部分显然需要正负都有覆盖（全是正数的话，只能表示大于 base 的数了，不合理），因此 IEEE754 adds a bias to the exponent，即真正的指数部分需要在 8-bit 对应的数基础上减去 127，因此范围是 [-126,127]，因此 normalized number 可表示的正数范围是：\nmin: 1 * 2-126 -\u003e 10-38 max: (1+1-2-23) * 2127 -\u003e 1038 对于 case1, fraction 部分按照 0.x 形式解析（即 denormalized），例如 01000..000 等于 0.25。此时指数部分全是0，显然我们也需要给它加一个 bias，多少呢？主要基于如下考虑：\ndenormalized number 和 normalized number 不应该有重叠，且前者更小。显然 bias=-126. 此时可表示的正数范围是：\nmin: 2-23 * 2-126 -\u003e 10-45 max: (1-2-23) * 2-126 -\u003e 1038 截至目前，正常数字表示需求已经都满足了，IEEE754 还提供两种表示含义：\nnot a number：例如对负数开平方 case2 + fraction 部分任选，但不能全0 无穷大（不过不太理解为什么会有这种需求，整型就没有） case2 + fraction 全0 精度 “表示精度”即我们想要表达的数字和实际存储对应的数字之间误差多大，平时十进制描述的小数也有精度概念，例如如果小数位数最多23位的话，表示 1.1*10-24 就有误差。基于二进制的浮点数也是类似的，它更进一步，在表示范围内，对于绝大部分数字，都不能将其精确表达。 以 FP32 为例，举一个 normalized 例子：精度可以做到 2-23，大约 10-7\nexpected: 1.1 real: 1.1 = 0b00011001100110011001100+ rem, rem\u003c2-23. 但是这并不表示对于任何表示范围内的数字，精度都是 10-7，因为上边例子指数部分是0：当数字变大的时候，fraction 本身的精度会被指数的放大所损毁。\n一些常见的浮点数 TBD\n",
+  "wordCount" : "196",
   "inLanguage": "en",
-  "image":"https://limingfang.github.io/images/avatar.png","datePublished": "2024-07-28T21:29:46+08:00",
-  "dateModified": "2024-07-28T21:29:46+08:00",
+  "datePublished": "0001-01-01T00:00:00Z",
+  "dateModified": "0001-01-01T00:00:00Z",
+  "author":[{
+    "@type": "Person",
+    "name": "liming fang"
+  }],
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "https://limingfang.github.io/posts/fp32/"
@@ -187,23 +207,84 @@
   <header class="post-header">
     <div class="breadcrumbs"><a href="https://limingfang.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://limingfang.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
-      FP32
+      IEEE754 学习
     </h1>
-    <div class="post-meta"><span title='2024-07-28 21:29:46 +0800 CST'>July 28, 2024</span>&nbsp;·&nbsp;1 min
+    <div class="post-meta">1 min&nbsp;·&nbsp;liming fang
 
 </div>
   </header> 
-<figure class="entry-cover"><img loading="eager" src="https://limingfang.github.io/images/avatar.png" alt="image">
-        <p>caption</p>
-</figure>
-  <div class="post-content"><h1 id="this-is-a-heading-one">This is a heading one<a hidden class="anchor" aria-hidden="true" href="#this-is-a-heading-one">#</a></h1>
+  <div class="post-content"><h2 id="todo">TODO<a hidden class="anchor" aria-hidden="true" href="#todo">#</a></h2>
+<p>排版用 latex 调整下。</p>
+<h2 id="intro">Intro<a hidden class="anchor" aria-hidden="true" href="#intro">#</a></h2>
+<p>写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。</p>
+<h2 id="basic">basic<a hidden class="anchor" aria-hidden="true" href="#basic">#</a></h2>
+<p>浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。
+首先参考十进制科学计数法：
+number = base<!-- raw HTML omitted -->10<!-- raw HTML omitted --> * 10<!-- raw HTML omitted -->exp<!-- raw HTML omitted -->, 1&lt;=base&lt;10</p>
+<p>IEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：</p>
+<ul>
+<li>1.25 = 1.25 * 2^0 = 1.01_2 * 2^0</li>
+<li>0.625 = 1.25 * 2<!-- raw HTML omitted -->-1<!-- raw HTML omitted --> = 1.01_2 * 2<!-- raw HTML omitted -->-1<!-- raw HTML omitted --></li>
+</ul>
+<p>上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。</p>
+<h2 id="more-detail">More Detail<a hidden class="anchor" aria-hidden="true" href="#more-detail">#</a></h2>
+<p>以上例子介绍了一个浮点数由哪几部分组合表达，现在介绍更具体的存储格式。显然有如下几部分需要表示：</p>
+<ul>
+<li>符号位</li>
+<li>base</li>
+<li>exponent</li>
+</ul>
+<p>以 FP32 为例，IEEE754 将32个 bits 如下划分：
+<img loading="lazy" src="/images/posts/FP32/IEEE_754_Single_Floating_Point_Format.png" alt=""  />
+</p>
+<h3 id="符号位">符号位<a hidden class="anchor" aria-hidden="true" href="#符号位">#</a></h3>
+<p>1-bit，非常简单，跳过。唯一需要注意的是对于浮点数能表示的数字正负是对称的。</p>
+<h3 id="exp-and-fraction">exp &amp; fraction<a hidden class="anchor" aria-hidden="true" href="#exp-and-fraction">#</a></h3>
+<p>以 FP32 为例，指数部分 8-bit 能表示 [0,255]，具体分三种情况：</p>
+<ol>
+<li>全0：对应0</li>
+<li>全1：对应 255</li>
+<li>其他：[1,254]</li>
+</ol>
+<p>其中，exp 部分不同的类别会影响 fraction 部分的解释。</p>
+<p>对于 case3, fraction 部分按照 1.x 形式解析（即 normalized），例如 <code>01000..000</code> 等于1.25。此时对于指数部分显然需要正负都有覆盖（全是正数的话，只能表示大于 base 的数了，不合理），因此 IEEE754 adds a bias to the exponent，即真正的指数部分需要在 8-bit 对应的数基础上减去 127，因此范围是 [-126,127]，因此 normalized number 可表示的正数范围是：</p>
+<ul>
+<li>min: 1 * 2<!-- raw HTML omitted -->-126<!-- raw HTML omitted --> -&gt; 10<!-- raw HTML omitted -->-38<!-- raw HTML omitted --></li>
+<li>max: (1+1-2<!-- raw HTML omitted -->-23<!-- raw HTML omitted -->) * 2<!-- raw HTML omitted -->127<!-- raw HTML omitted --> -&gt; 10<!-- raw HTML omitted -->38<!-- raw HTML omitted --></li>
+</ul>
+<p>对于 case1, fraction 部分按照 0.x 形式解析（即 denormalized），例如 <code>01000..000</code> 等于 0.25。此时指数部分全是0，显然我们也需要给它加一个 bias，多少呢？主要基于如下考虑：</p>
+<ul>
+<li>denormalized number 和 normalized number 不应该有重叠，且前者更小。显然 bias=-126.</li>
+</ul>
+<p>此时可表示的正数范围是：</p>
+<ul>
+<li>min: 2<!-- raw HTML omitted -->-23<!-- raw HTML omitted --> * 2<!-- raw HTML omitted -->-126<!-- raw HTML omitted --> -&gt; 10<!-- raw HTML omitted -->-45<!-- raw HTML omitted --></li>
+<li>max: (1-2<!-- raw HTML omitted -->-23<!-- raw HTML omitted -->) * 2<!-- raw HTML omitted -->-126<!-- raw HTML omitted --> -&gt; 10<!-- raw HTML omitted -->38<!-- raw HTML omitted --></li>
+</ul>
+<p>截至目前，正常数字表示需求已经都满足了，IEEE754 还提供两种表示含义：</p>
+<ol>
+<li>not a number：例如对负数开平方
+case2 + fraction 部分任选，但不能全0</li>
+<li>无穷大（不过不太理解为什么会有这种需求，整型就没有）
+case2 + fraction 全0</li>
+</ol>
+<h3 id="精度">精度<a hidden class="anchor" aria-hidden="true" href="#精度">#</a></h3>
+<p>“表示精度”即我们想要表达的数字和实际存储对应的数字之间误差多大，平时十进制描述的小数也有精度概念，例如如果小数位数最多23位的话，表示 1.1*10<!-- raw HTML omitted -->-24<!-- raw HTML omitted --> 就有误差。基于二进制的浮点数也是类似的，它更进一步，在表示范围内，对于绝大部分数字，都不能将其精确表达。
+以 FP32 为例，举一个 normalized 例子：精度可以做到 2<!-- raw HTML omitted -->-23<!-- raw HTML omitted -->，大约 10<!-- raw HTML omitted -->-7<!-- raw HTML omitted --></p>
+<ul>
+<li>expected: 1.1</li>
+<li>real: 1.1 = 0b00011001100110011001100+ rem, rem&lt;2<!-- raw HTML omitted -->-23<!-- raw HTML omitted -->.</li>
+</ul>
+<p>但是这并不表示对于任何表示范围内的数字，精度都是 10<!-- raw HTML omitted -->-7<!-- raw HTML omitted -->，因为上边例子指数部分是0：当数字变大的时候，fraction 本身的精度会被指数的放大所损毁。</p>
+<h3 id="一些常见的浮点数">一些常见的浮点数<a hidden class="anchor" aria-hidden="true" href="#一些常见的浮点数">#</a></h3>
+<p>TBD</p>
 
 
   </div>
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="https://limingfang.github.io/blog/html/">Html</a></li>
+      <li><a href="https://limingfang.github.io/blog/basic/">Basic</a></li>
     </ul>
 
   </footer>
