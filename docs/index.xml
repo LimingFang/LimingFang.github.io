@@ -38,6 +38,40 @@
 hugo 默认支持两种分类，即 tag 和 category：&lt;/p&gt;</description>
     </item>
     <item>
+      <title>LevelDB Layout</title>
+      <link>https://limingfang.github.io/posts/leveldb/2-layout/</link>
+      <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>
+      <guid>https://limingfang.github.io/posts/leveldb/2-layout/</guid>
+      <description>&lt;h2 id=&#34;1-layoutmemtable-sstable--log&#34;&gt;1. layout(memtable, sstable,  log)&lt;/h2&gt;
+&lt;p&gt;leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。&lt;br&gt;
+Layout 贯穿 DB、WriteBatch、MemTable、Log。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本章节尽量不考虑控制流程，聚焦于 layout&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h3 id=&#34;11-memtable&#34;&gt;1.1. memtable&lt;/h3&gt;
+&lt;p&gt;&lt;img alt=&#34;memtable layout&#34; loading=&#34;lazy&#34; src=&#34;https://limingfang.github.io/posts/leveldb/2-layout/memtable1.png&#34;&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;最上层有两种可能：提供 key-value pair &lt;code&gt;PII&lt;/code&gt; 表示插入/修改，或者只提供 key 表示删除。&lt;/li&gt;
+&lt;li&gt;中间层是 &lt;code&gt;WriteBatch&lt;/code&gt;：
+由于 leveldb 中所有 mutation 都以 record 方式记录，所以 &lt;code&gt;WriteBatch&lt;/code&gt; 中需要能同时描述 key 的插入和删除。而且 &lt;code&gt;WriteBatch&lt;/code&gt; 还得同时 handle 多条 record
+&lt;ul&gt;
+&lt;li&gt;header: 记录有多少笔 &lt;code&gt;PII&lt;/code&gt; 以及它们共享的 &lt;code&gt;seq_id&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;type: 标识是 &lt;code&gt;Put&lt;/code&gt; 还是 &lt;code&gt;Delete&lt;/code&gt; 操作&lt;/li&gt;
+&lt;li&gt;(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+这一整段连续内存由 &lt;code&gt;rep_&lt;/code&gt; 表示，后续要直接写到 LOG 中，恢复时会复用 &lt;code&gt;rep_&lt;/code&gt; 处理流程。所以像 seq_id 等信息都要记录全。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;最下层是 MemTable：它负责对所有 record 排序
+&lt;ul&gt;
+&lt;li&gt;InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。&lt;/li&gt;
+&lt;li&gt;需要注意的，同一个 &lt;code&gt;WriteBatch&lt;/code&gt; 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。
+&lt;img alt=&#34;memtable demo&#34; loading=&#34;lazy&#34; src=&#34;https://limingfang.github.io/posts/leveldb/2-layout/memtable2.png&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;12-block-based-storage&#34;&gt;1.2. block-based storage&lt;/h3&gt;
+&lt;p&gt;SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>LevelDB 概览</title>
       <link>https://limingfang.github.io/posts/leveldb/1-intro/</link>
       <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>

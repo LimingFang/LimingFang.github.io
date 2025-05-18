@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>LevelDB Layout | Leo</title>
+<meta name="keywords" content="storage, cpp">
+<meta name="description" content="1. layout(memtable, sstable,  log)
+leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
+Layout 贯穿 DB、WriteBatch、MemTable、Log。
+
+本章节尽量不考虑控制流程，聚焦于 layout
+1.1. memtable
+
+
+最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。
+中间层是 WriteBatch：
+由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record
+
+header: 记录有多少笔 PII 以及它们共享的 seq_id。
+type: 标识是 Put 还是 Delete 操作
+(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。
+
+
+最下层是 MemTable：它负责对所有 record 排序
+
+InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对同一个 key 不同版本排出顺序。
+需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。
+
+
+
+
+1.2. block-based storage
+SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+<meta name="author" content="">
+<link rel="canonical" href="https://limingfang.github.io/posts/leveldb/2-layout/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://limingfang.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://limingfang.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://limingfang.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://limingfang.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://limingfang.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://limingfang.github.io/posts/leveldb/2-layout/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://limingfang.github.io/posts/leveldb/2-layout/">
+  <meta property="og:site_name" content="Leo">
+  <meta property="og:title" content="LevelDB Layout">
+  <meta property="og:description" content="1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
+Layout 贯穿 DB、WriteBatch、MemTable、Log。
+本章节尽量不考虑控制流程，聚焦于 layout
+1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-05-18T11:24:36+08:00">
+    <meta property="article:modified_time" content="2025-05-18T11:24:36+08:00">
+    <meta property="article:tag" content="Storage">
+    <meta property="article:tag" content="Cpp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LevelDB Layout">
+<meta name="twitter:description" content="1. layout(memtable, sstable,  log)
+leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
+Layout 贯穿 DB、WriteBatch、MemTable、Log。
+
+本章节尽量不考虑控制流程，聚焦于 layout
+1.1. memtable
+
+
+最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。
+中间层是 WriteBatch：
+由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record
+
+header: 记录有多少笔 PII 以及它们共享的 seq_id。
+type: 标识是 Put 还是 Delete 操作
+(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。
+
+
+最下层是 MemTable：它负责对所有 record 排序
+
+InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对同一个 key 不同版本排出顺序。
+需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。
+
+
+
+
+1.2. block-based storage
+SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://limingfang.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "LevelDB Layout",
+      "item": "https://limingfang.github.io/posts/leveldb/2-layout/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "LevelDB Layout",
+  "name": "LevelDB Layout",
+  "description": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n",
+  "keywords": [
+    "storage", "cpp"
+  ],
+  "articleBody": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n1.3. log WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）\nlog file 在逻辑层按照 record 划分，每个 record 中存放 WriteBatch 中的 rep_ 来间接存放 key-value pair，同时由于变长所以还要存放 len，以及 crc 用于校验。\ntype 字段和 log file 物理存储格式有关：整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是：\nFULL：完全落在单个 block 中 FIRST/LAST/MIDDLE：对应横跨多个 block 的 record 不同部分 content 中存放是 WriteBatch 中的 rep_，这样可以直接复用已有的很多流程。\n1.4. sstable memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。\nsstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。\ndata block：显然 sstable 是要存储 key-value 数据的 meta block：一级元数据，目前仅实现了 filter block（布隆过滤器），目的是加速 sstable 读取 meta index block：二级元数据，记录 meta block 信息 index block：二级元数据，记录 data block 信息 footer：身份标识+ index of meta_index/index block 1.4.1. data block data block record format 和 WAL record 略有差别： prefix compression\n1.4.2. meta block 数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base). ",
+  "wordCount" : "246",
+  "inLanguage": "en",
+  "datePublished": "2025-05-18T11:24:36+08:00",
+  "dateModified": "2025-05-18T11:24:36+08:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://limingfang.github.io/posts/leveldb/2-layout/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Leo",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://limingfang.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://limingfang.github.io/" accesskey="h" title="Leo (Alt + H)">Leo</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://limingfang.github.io/categories" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://limingfang.github.io/tags" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://limingfang.github.io/archives" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      LevelDB Layout
+    </h1>
+    <div class="post-meta"><span title='2025-05-18 11:24:36 +0800 CST'>May 18, 2025</span>
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="1-layoutmemtable-sstable--log">1. layout(memtable, sstable,  log)<a hidden class="anchor" aria-hidden="true" href="#1-layoutmemtable-sstable--log">#</a></h2>
+<p>leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。<br>
+Layout 贯穿 DB、WriteBatch、MemTable、Log。</p>
+<blockquote>
+<p>本章节尽量不考虑控制流程，聚焦于 layout</p></blockquote>
+<h3 id="11-memtable">1.1. memtable<a hidden class="anchor" aria-hidden="true" href="#11-memtable">#</a></h3>
+<p><img alt="memtable layout" loading="lazy" src="/posts/leveldb/2-layout/memtable1.png"></p>
+<ol>
+<li>最上层有两种可能：提供 key-value pair <code>PII</code> 表示插入/修改，或者只提供 key 表示删除。</li>
+<li>中间层是 <code>WriteBatch</code>：
+由于 leveldb 中所有 mutation 都以 record 方式记录，所以 <code>WriteBatch</code> 中需要能同时描述 key 的插入和删除。而且 <code>WriteBatch</code> 还得同时 handle 多条 record
+<ul>
+<li>header: 记录有多少笔 <code>PII</code> 以及它们共享的 <code>seq_id</code>。</li>
+<li>type: 标识是 <code>Put</code> 还是 <code>Delete</code> 操作</li>
+<li>(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+这一整段连续内存由 <code>rep_</code> 表示，后续要直接写到 LOG 中，恢复时会复用 <code>rep_</code> 处理流程。所以像 seq_id 等信息都要记录全。</li>
+</ul>
+</li>
+<li>最下层是 MemTable：它负责对所有 record 排序
+<ul>
+<li>InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。</li>
+<li>需要注意的，同一个 <code>WriteBatch</code> 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。
+<img alt="memtable demo" loading="lazy" src="/posts/leveldb/2-layout/memtable2.png"></li>
+</ul>
+</li>
+</ol>
+<h3 id="12-block-based-storage">1.2. block-based storage<a hidden class="anchor" aria-hidden="true" href="#12-block-based-storage">#</a></h3>
+<p>SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。</p>
+<h3 id="13-log">1.3. log<a hidden class="anchor" aria-hidden="true" href="#13-log">#</a></h3>
+<p>WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）<br>
+log file 在逻辑层按照 record 划分，每个 record 中存放 <code>WriteBatch</code> 中的 <code>rep_</code> 来间接存放 key-value pair，同时由于变长所以还要存放 len，以及 crc 用于校验。<br>
+<code>type</code> 字段和 log file 物理存储格式有关：整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是：</p>
+<ol>
+<li>FULL：完全落在单个 block 中</li>
+<li>FIRST/LAST/MIDDLE：对应横跨多个 block 的 record 不同部分
+<img alt="log" loading="lazy" src="/posts/leveldb/2-layout/log.png"></li>
+</ol>
+<blockquote>
+<p>content 中存放是 <code>WriteBatch</code> 中的 <code>rep_</code>，这样可以直接复用已有的很多流程。</p></blockquote>
+<h3 id="14-sstable">1.4. sstable<a hidden class="anchor" aria-hidden="true" href="#14-sstable">#</a></h3>
+<p>memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。</p>
+<p>sstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。</p>
+<ul>
+<li>data block：显然 sstable 是要存储 key-value 数据的</li>
+<li>meta block：一级元数据，目前仅实现了 filter block（布隆过滤器），目的是加速 sstable 读取</li>
+<li>meta index block：二级元数据，记录 meta block 信息</li>
+<li>index block：二级元数据，记录 data block 信息</li>
+<li>footer：身份标识+ index of meta_index/index block</li>
+</ul>
+<h4 id="141-data-block">1.4.1. data block<a hidden class="anchor" aria-hidden="true" href="#141-data-block">#</a></h4>
+<p>data block record format 和 WAL record 略有差别：
+<img alt="data block" loading="lazy" src="/posts/leveldb/2-layout/datablock.png"></p>
+<blockquote>
+<p>prefix compression</p></blockquote>
+<h4 id="142-meta-block">1.4.2. meta block<a hidden class="anchor" aria-hidden="true" href="#142-meta-block">#</a></h4>
+<p>数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base).
+<img alt="meta block" loading="lazy" src="/posts/leveldb/2-layout/metablock.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://limingfang.github.io/tags/storage/">Storage</a></li>
+      <li><a href="https://limingfang.github.io/tags/cpp/">Cpp</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://limingfang.github.io/">Leo</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
