@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Leo</title>
+    <link>https://limingfang.github.io/</link>
+    <description>Recent content on Leo</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 18 May 2025 11:24:36 +0800</lastBuildDate>
+    <atom:link href="https://limingfang.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Blog 配置</title>
+      <link>https://limingfang.github.io/posts/blog/</link>
+      <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>
+      <guid>https://limingfang.github.io/posts/blog/</guid>
+      <description>&lt;h2 id=&#34;2-hugo-和-theme-关系&#34;&gt;2. hugo 和 theme 关系&lt;/h2&gt;
+&lt;p&gt;hugo 提供渲染功能，theme 功能是进行更好的展示（？）。配置 blog 样式时先看 theme 有无提供说明，然后再看 hugo reference&lt;br&gt;
+以 taxonomies 为例，使用 hugo 原生语法定制有哪些分类，但是展示效果则取决于 theme&lt;/p&gt;
+&lt;h2 id=&#34;2-blog-细节&#34;&gt;2. blog 细节&lt;/h2&gt;
+&lt;h3 id=&#34;21-home-page&#34;&gt;2.1. home page&lt;/h3&gt;
+&lt;p&gt;整体简洁，上面是基本介绍，例如 zhihu link，下面是一行一行的文章概述&lt;br&gt;
+右上角是 archive 和 tag 的链接。&lt;/p&gt;
+&lt;h3 id=&#34;22-文章管理&#34;&gt;2.2. 文章管理&lt;/h3&gt;
+&lt;p&gt;source content 和渲染后路径是对应的，默认一般是：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-txt&#34; data-lang=&#34;txt&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;└── content
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    └── about
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    |   └── index.md  // &amp;lt;- https://example.org/about/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ├── posts
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    |   ├── firstpost.md   // &amp;lt;- https://example.org/posts/firstpost/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    |   ├── happy
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    |   |   └── ness.md  // &amp;lt;- https://example.org/posts/happy/ness/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    |   └── secondpost.md  // &amp;lt;- https://example.org/posts/secondpost/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    └── quote
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        ├── first.md       // &amp;lt;- https://example.org/quote/first/
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        └── second.md      // &amp;lt;- https://example.org/quote/second/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;taxonomies&lt;/strong&gt;&lt;br&gt;
+hugo 默认支持两种分类，即 tag 和 category：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>LevelDB 概览</title>
+      <link>https://limingfang.github.io/posts/leveldb/1-intro/</link>
+      <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>
+      <guid>https://limingfang.github.io/posts/leveldb/1-intro/</guid>
+      <description>&lt;h2 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h2&gt;
+&lt;p&gt;leveldb 是一个持久化的、最早一批实现 LSM-tree 模型的 kv 数据库，读写性能都很高（当时），并且整体实现也较为简洁。&lt;/p&gt;
+&lt;h2 id=&#34;2-design-overview&#34;&gt;2. Design Overview&lt;/h2&gt;
+&lt;h3 id=&#34;21-assumption&#34;&gt;2.1. Assumption&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;影响到为什么选择了 LSM-Tree 模型，而不是其他的（还有啥呢？）。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;目前只知道是当时磁盘顺序写比随机写快很多。&lt;br&gt;
+还有有序性，例如前缀压缩就是基于有序性做的。&lt;br&gt;
+再补充&lt;/p&gt;
+&lt;h3 id=&#34;22-interface&#34;&gt;2.2. Interface&lt;/h3&gt;
+&lt;p&gt;作为 KV 存储系统：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;提供 Put, Get, Delete 常规接口&lt;/li&gt;
+&lt;li&gt;提供 writebatch 接口供 atomic update，此外还支持 sync write、snapshot&lt;/li&gt;
+&lt;li&gt;提供迭代器用于遍历&lt;/li&gt;
+&lt;li&gt;用户可自定义比较器，定义 key 的顺序&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;23-architecture&#34;&gt;2.3. Architecture&lt;/h3&gt;
+&lt;p&gt;leveldb 以 library 的方式链接到用户程序中使用，而不是 client-server 的方式。&lt;/p&gt;
+&lt;p&gt;核心组件包括 memtable, log, sstable, manifest, env：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;LOG：记录变更记录，包括 write 和 delete。主要用于保证异常情况不丢失数据&lt;/li&gt;
+&lt;li&gt;memtable：in-memory 有序 key-value 结构，用于存储用户最新的 key-value pairs&lt;/li&gt;
+&lt;li&gt;sstable：on-disk immutable 有序 key-value 结构，memtable 满足某些条件（例如大小超过阈值）时会转化成 sstable。sstable 内部会分成多个 level，低层（更新）sstable 也会定期整理生成高层 sstable。每个 sstable 对应一个文件，存储的 key-value 可能会有重叠。&lt;/li&gt;
+&lt;li&gt;env: 抽象层，对不同平台提供的接口做了统一封装，使得能跨平台使用。
+&lt;img alt=&#34;Arch&#34; loading=&#34;lazy&#34; src=&#34;https://limingfang.github.io/posts/leveldb/1-intro/arch.jpg&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;可以从以下几个方面了解 leveldb：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>IEEE754 学习</title>
+      <link>https://limingfang.github.io/posts/fp32/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://limingfang.github.io/posts/fp32/</guid>
+      <description>&lt;h2 id=&#34;todo&#34;&gt;TODO&lt;/h2&gt;
+&lt;p&gt;排版用 latex 调整下。&lt;/p&gt;
+&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;
+&lt;p&gt;写这篇 blog 目的是了解一下浮点数规范，并尝试分析一些设计背后的原因（简单的）。主要参考了 IEEE754-1985。&lt;/p&gt;
+&lt;h2 id=&#34;basic&#34;&gt;basic&lt;/h2&gt;
+&lt;p&gt;浮点数包括 16-bit(half precision)、32-bit(single precision)、64-bit(double precision)、128-bit(quadruple precision)，其表示范围和精度不同，但是格式是一致的。
+首先参考十进制科学计数法：
+number = base&lt;!-- raw HTML omitted --&gt;10&lt;!-- raw HTML omitted --&gt; * 10&lt;!-- raw HTML omitted --&gt;exp&lt;!-- raw HTML omitted --&gt;, 1&amp;lt;=base&amp;lt;10&lt;/p&gt;
+&lt;p&gt;IEEE754 规范采用了类似的思路，只不过 base, exp 这些都使用二进制表示。举个例子：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1.25 = 1.25 * 2^0 = 1.01_2 * 2^0&lt;/li&gt;
+&lt;li&gt;0.625 = 1.25 * 2&lt;!-- raw HTML omitted --&gt;-1&lt;!-- raw HTML omitted --&gt; = 1.01_2 * 2&lt;!-- raw HTML omitted --&gt;-1&lt;!-- raw HTML omitted --&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;上面这种是 normalized numbers，即 base 是 1.x 的形式，IEEE754 还规定了 denormalized numbers，目的是表示 (-1,1) 区间内非常非常小的数字。后边章节介绍存储时如何区分这两种类型（当然还有一些其他特殊的 number，但都是个例，后边一并介绍）。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

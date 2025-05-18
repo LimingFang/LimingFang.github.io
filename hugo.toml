@@ -1,0 +1,30 @@
+baseURL = 'https://limingfang.github.io/'
+languageCode = 'en-us'
+title = 'Leo'
+theme = ['PaperMod']
+
+[[menus.main]]
+identifier = "categories"
+name = "Categories"
+url = "categories"
+weight = 10
+[[menus.main]]
+identifier = "tags"
+name = "Tags"
+url = "tags"
+weight = 20
+[[menus.main]]
+identifier = "archives"
+name = "Archives"
+url = "archives"
+weight = 30
+
+[params.homeInfoParams]
+  Title = "Hi there \U0001F44B."
+  Content = "I'm 🐼Leo, a systems software engineer at ByteDance."
+[[params.socialIcons]]
+name = "zhihu"
+url = "https://www.zhihu.com/people/xiao-xiong-mao-1-18"
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/LimingFang"

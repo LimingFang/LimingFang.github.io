@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Leveldb on Leo</title>
+    <link>https://limingfang.github.io/categories/leveldb/</link>
+    <description>Recent content in Leveldb on Leo</description>
+    <generator>Hugo -- 0.147.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 18 May 2025 11:24:36 +0800</lastBuildDate>
+    <atom:link href="https://limingfang.github.io/categories/leveldb/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LevelDB 概览</title>
+      <link>https://limingfang.github.io/posts/leveldb/1-intro/</link>
+      <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>
+      <guid>https://limingfang.github.io/posts/leveldb/1-intro/</guid>
+      <description>&lt;h2 id=&#34;1-introduction&#34;&gt;1. Introduction&lt;/h2&gt;
+&lt;p&gt;leveldb 是一个持久化的、最早一批实现 LSM-tree 模型的 kv 数据库，读写性能都很高（当时），并且整体实现也较为简洁。&lt;/p&gt;
+&lt;h2 id=&#34;2-design-overview&#34;&gt;2. Design Overview&lt;/h2&gt;
+&lt;h3 id=&#34;21-assumption&#34;&gt;2.1. Assumption&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;影响到为什么选择了 LSM-Tree 模型，而不是其他的（还有啥呢？）。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;目前只知道是当时磁盘顺序写比随机写快很多。&lt;br&gt;
+还有有序性，例如前缀压缩就是基于有序性做的。&lt;br&gt;
+再补充&lt;/p&gt;
+&lt;h3 id=&#34;22-interface&#34;&gt;2.2. Interface&lt;/h3&gt;
+&lt;p&gt;作为 KV 存储系统：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;提供 Put, Get, Delete 常规接口&lt;/li&gt;
+&lt;li&gt;提供 writebatch 接口供 atomic update，此外还支持 sync write、snapshot&lt;/li&gt;
+&lt;li&gt;提供迭代器用于遍历&lt;/li&gt;
+&lt;li&gt;用户可自定义比较器，定义 key 的顺序&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;23-architecture&#34;&gt;2.3. Architecture&lt;/h3&gt;
+&lt;p&gt;leveldb 以 library 的方式链接到用户程序中使用，而不是 client-server 的方式。&lt;/p&gt;
+&lt;p&gt;核心组件包括 memtable, log, sstable, manifest, env：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;LOG：记录变更记录，包括 write 和 delete。主要用于保证异常情况不丢失数据&lt;/li&gt;
+&lt;li&gt;memtable：in-memory 有序 key-value 结构，用于存储用户最新的 key-value pairs&lt;/li&gt;
+&lt;li&gt;sstable：on-disk immutable 有序 key-value 结构，memtable 满足某些条件（例如大小超过阈值）时会转化成 sstable。sstable 内部会分成多个 level，低层（更新）sstable 也会定期整理生成高层 sstable。每个 sstable 对应一个文件，存储的 key-value 可能会有重叠。&lt;/li&gt;
+&lt;li&gt;env: 抽象层，对不同平台提供的接口做了统一封装，使得能跨平台使用。
+&lt;img alt=&#34;Arch&#34; loading=&#34;lazy&#34; src=&#34;https://limingfang.github.io/posts/leveldb/1-intro/arch.jpg&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;可以从以下几个方面了解 leveldb：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
