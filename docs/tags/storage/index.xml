@@ -14,8 +14,8 @@
       <pubDate>Sun, 18 May 2025 11:24:36 +0800</pubDate>
       <guid>https://limingfang.github.io/posts/leveldb/2-layout/</guid>
       <description>&lt;h2 id=&#34;1-layoutmemtable-sstable--log&#34;&gt;1. layout(memtable, sstable,  log)&lt;/h2&gt;
-&lt;p&gt;leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。&lt;br&gt;
-Layout 贯穿 DB、WriteBatch、MemTable、Log。&lt;/p&gt;
+&lt;p&gt;  leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。&lt;br&gt;
+  Layout 贯穿 DB、WriteBatch、MemTable、Log。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;本章节尽量不考虑控制流程，聚焦于 layout&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h3 id=&#34;11-memtable&#34;&gt;1.1. memtable&lt;/h3&gt;
@@ -27,7 +27,7 @@ Layout 贯穿 DB、WriteBatch、MemTable、Log。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;header: 记录有多少笔 &lt;code&gt;PII&lt;/code&gt; 以及它们共享的 &lt;code&gt;seq_id&lt;/code&gt;。&lt;/li&gt;
 &lt;li&gt;type: 标识是 &lt;code&gt;Put&lt;/code&gt; 还是 &lt;code&gt;Delete&lt;/code&gt; 操作&lt;/li&gt;
-&lt;li&gt;(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+&lt;li&gt;(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice&lt;br&gt;
 这一整段连续内存由 &lt;code&gt;rep_&lt;/code&gt; 表示，后续要直接写到 LOG 中，恢复时会复用 &lt;code&gt;rep_&lt;/code&gt; 处理流程。所以像 seq_id 等信息都要记录全。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
@@ -40,7 +40,7 @@ Layout 贯穿 DB、WriteBatch、MemTable、Log。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;h3 id=&#34;12-block-based-storage&#34;&gt;1.2. block-based storage&lt;/h3&gt;
-&lt;p&gt;SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。&lt;/p&gt;</description>
+&lt;p&gt;  STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。&lt;/p&gt;</description>
     </item>
     <item>
       <title>LevelDB 概览</title>

@@ -8,8 +8,8 @@
 <title>LevelDB Layout | Leo</title>
 <meta name="keywords" content="storage, cpp">
 <meta name="description" content="1. layout(memtable, sstable,  log)
-leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
-Layout 贯穿 DB、WriteBatch、MemTable、Log。
+  leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
+  Layout 贯穿 DB、WriteBatch、MemTable、Log。
 
 本章节尽量不考虑控制流程，聚焦于 layout
 1.1. memtable
@@ -34,7 +34,7 @@ InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对
 
 
 1.2. block-based storage
-SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+  STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
 <meta name="author" content="">
 <link rel="canonical" href="https://limingfang.github.io/posts/leveldb/2-layout/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
@@ -88,7 +88,8 @@ SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数�
   <meta property="og:description" content="1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
 Layout 贯穿 DB、WriteBatch、MemTable、Log。
 本章节尽量不考虑控制流程，聚焦于 layout
-1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -99,8 +100,8 @@ Layout 贯穿 DB、WriteBatch、MemTable、Log。
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LevelDB Layout">
 <meta name="twitter:description" content="1. layout(memtable, sstable,  log)
-leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
-Layout 贯穿 DB、WriteBatch、MemTable、Log。
+  leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。
+  Layout 贯穿 DB、WriteBatch、MemTable、Log。
 
 本章节尽量不考虑控制流程，聚焦于 layout
 1.1. memtable
@@ -125,7 +126,7 @@ InternalKey：在 user key 基础上引入 seq_id&#43;tag type，这样可以对
 
 
 1.2. block-based storage
-SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
+  STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。">
 
 
 <script type="application/ld+json">
@@ -154,12 +155,12 @@ SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数�
   "@type": "BlogPosting",
   "headline": "LevelDB Layout",
   "name": "LevelDB Layout",
-  "description": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n",
+  "description": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice\n这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n",
   "keywords": [
     "storage", "cpp"
   ],
-  "articleBody": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice 这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n1.3. log WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）\nlog file 在逻辑层按照 record 划分，每个 record 中存放 WriteBatch 中的 rep_ 来间接存放 key-value pair，同时由于变长所以还要存放 len，以及 crc 用于校验。\ntype 字段和 log file 物理存储格式有关：整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是：\nFULL：完全落在单个 block 中 FIRST/LAST/MIDDLE：对应横跨多个 block 的 record 不同部分 content 中存放是 WriteBatch 中的 rep_，这样可以直接复用已有的很多流程。\n1.4. sstable memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。\nsstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。\ndata block：显然 sstable 是要存储 key-value 数据的 meta block：一级元数据，目前仅实现了 filter block（布隆过滤器），目的是加速 sstable 读取 meta index block：二级元数据，记录 meta block 信息 index block：二级元数据，记录 data block 信息 footer：身份标识+ index of meta_index/index block 1.4.1. data block data block record format 和 WAL record 略有差别： prefix compression\n1.4.2. meta block 数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base). ",
-  "wordCount" : "246",
+  "articleBody": "1. layout(memtable, sstable, log) leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。\nLayout 贯穿 DB、WriteBatch、MemTable、Log。\n本章节尽量不考虑控制流程，聚焦于 layout\n1.1. memtable 最上层有两种可能：提供 key-value pair PII 表示插入/修改，或者只提供 key 表示删除。 中间层是 WriteBatch： 由于 leveldb 中所有 mutation 都以 record 方式记录，所以 WriteBatch 中需要能同时描述 key 的插入和删除。而且 WriteBatch 还得同时 handle 多条 record header: 记录有多少笔 PII 以及它们共享的 seq_id。 type: 标识是 Put 还是 Delete 操作 (key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice\n这一整段连续内存由 rep_ 表示，后续要直接写到 LOG 中，恢复时会复用 rep_ 处理流程。所以像 seq_id 等信息都要记录全。 最下层是 MemTable：它负责对所有 record 排序 InternalKey：在 user key 基础上引入 seq_id+tag type，这样可以对同一个 key 不同版本排出顺序。 需要注意的，同一个 WriteBatch 内 seq_id 是相同的，因此同一个 key 得看操作的先后顺序，越靠后的操作越新。 1.2. block-based storage STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。\n1.3. log WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）\nrecord 中存放是 WriteBatch 中的 rep_，这样可以直接复用已有的很多流程。 log file 在逻辑层按照 record 划分，每个 record：\n存放 WriteBatch 中的 rep_ 来间接存放 key-value pair len：变长存储 crc type：log file 物理存储格式有关，整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是： FULL：完全落在单个 block 中 FIRST/LAST/MIDDLE：对应横跨多个 block 的 record 不同部分 具体到细节，有一个原则：record header 不拆。边界情况下，如果 block 剩余空间小于7字节，会用0填充，然后再下个 block 写 header+content；正常情况下，block 完整写下 header 后还有至少1字节空间，可以继续写 content。在 log 解析时，按照 record 粒度进行，能知道每个 record 起点，然后判断下剩余空间就知道是 block trailer 是有用的还是填充的。\n1.4. sstable memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。\nsstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。\ndata block：显然 sstable 是要存储 key-value 数据的 meta block：一级元数据，目前仅实现了 filter block（布隆过滤器），目的是加速 sstable 读取 meta index block：二级元数据，记录 meta block 信息 index block：二级元数据，记录 data block 信息 footer：身份标识+ index of meta_index/index block 1.4.1. data block data block record format 和 WAL record 略有差别： prefix compression\n1.4.2. meta block 数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base). ",
+  "wordCount" : "264",
   "inLanguage": "en",
   "datePublished": "2025-05-18T11:24:36+08:00",
   "dateModified": "2025-05-18T11:24:36+08:00",
@@ -250,8 +251,8 @@ SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数�
 </div>
   </header> 
   <div class="post-content"><h2 id="1-layoutmemtable-sstable--log">1. layout(memtable, sstable,  log)<a hidden class="anchor" aria-hidden="true" href="#1-layoutmemtable-sstable--log">#</a></h2>
-<p>leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。<br>
-Layout 贯穿 DB、WriteBatch、MemTable、Log。</p>
+<p>  leveldb 中有一些的 layout 设计点，如果能理解这些设计，对后续流程以及整体的理解会有帮助。<br>
+  Layout 贯穿 DB、WriteBatch、MemTable、Log。</p>
 <blockquote>
 <p>本章节尽量不考虑控制流程，聚焦于 layout</p></blockquote>
 <h3 id="11-memtable">1.1. memtable<a hidden class="anchor" aria-hidden="true" href="#11-memtable">#</a></h3>
@@ -263,7 +264,7 @@ Layout 贯穿 DB、WriteBatch、MemTable、Log。</p>
 <ul>
 <li>header: 记录有多少笔 <code>PII</code> 以及它们共享的 <code>seq_id</code>。</li>
 <li>type: 标识是 <code>Put</code> 还是 <code>Delete</code> 操作</li>
-<li>(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice
+<li>(key, keylen), (val, val len): 基于 variant length 编码，本质就是 slice<br>
 这一整段连续内存由 <code>rep_</code> 表示，后续要直接写到 LOG 中，恢复时会复用 <code>rep_</code> 处理流程。所以像 seq_id 等信息都要记录全。</li>
 </ul>
 </li>
@@ -276,21 +277,28 @@ Layout 贯穿 DB、WriteBatch、MemTable、Log。</p>
 </li>
 </ol>
 <h3 id="12-block-based-storage">1.2. block-based storage<a hidden class="anchor" aria-hidden="true" href="#12-block-based-storage">#</a></h3>
-<p>SSTable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。</p>
+<p>  STable 和 Log File 物理存储都按照 block 进行划分，block 中的数据在逻辑层有不同的含义，在各自章节会介绍。</p>
 <h3 id="13-log">1.3. log<a hidden class="anchor" aria-hidden="true" href="#13-log">#</a></h3>
-<p>WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）<br>
-log file 在逻辑层按照 record 划分，每个 record 中存放 <code>WriteBatch</code> 中的 <code>rep_</code> 来间接存放 key-value pair，同时由于变长所以还要存放 len，以及 crc 用于校验。<br>
-<code>type</code> 字段和 log file 物理存储格式有关：整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是：</p>
+<p>  WAL 目的是保证异常情况下的数据可靠性，leveldb 需要通过 WAL 恢复出没来得及落盘的 key-value pair，因此 WAL 核心是存储 key-value pair，其他字段/设计都是为了更好的读写（例如性能？）</p>
+<blockquote>
+<p>record 中存放是 <code>WriteBatch</code> 中的 <code>rep_</code>，这样可以直接复用已有的很多流程。
+  log file 在逻辑层按照 record 划分，每个 record：</p></blockquote>
+<ul>
+<li>存放 <code>WriteBatch</code> 中的 <code>rep_</code> 来间接存放 key-value pair</li>
+<li>len：变长存储</li>
+<li>crc</li>
+<li><code>type</code>：log file 物理存储格式有关，整个文件默认按照 32KB 划分成多个 block，record 和 block 的关系是：
 <ol>
 <li>FULL：完全落在单个 block 中</li>
 <li>FIRST/LAST/MIDDLE：对应横跨多个 block 的 record 不同部分
 <img alt="log" loading="lazy" src="/posts/leveldb/2-layout/log.png"></li>
 </ol>
-<blockquote>
-<p>content 中存放是 <code>WriteBatch</code> 中的 <code>rep_</code>，这样可以直接复用已有的很多流程。</p></blockquote>
+</li>
+</ul>
+<p>  具体到细节，有一个原则：record header 不拆。边界情况下，如果 block 剩余空间小于7字节，会用0填充，然后再下个 block 写 header+content；正常情况下，block 完整写下 header 后还有至少1字节空间，可以继续写 content。在 log 解析时，按照 record 粒度进行，能知道每个 record 起点，然后判断下剩余空间就知道是 block trailer 是有用的还是填充的。</p>
 <h3 id="14-sstable">1.4. sstable<a hidden class="anchor" aria-hidden="true" href="#14-sstable">#</a></h3>
-<p>memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。</p>
-<p>sstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。</p>
+<p>  memtable 在达到一定容量后会通过 minor compaction 转化成 L0 的 sstable，高层 sstable 也会通过后台 major compaction 转化成低层的 sstable。sstable 目的也是存放 key-value pair。每个 sstable 对应一个操作系统文件。</p>
+<p>  sstable 物理存储颗粒度是 block，逻辑上划分成：data block、meta block、meta index block、index block、footer。</p>
 <ul>
 <li>data block：显然 sstable 是要存储 key-value 数据的</li>
 <li>meta block：一级元数据，目前仅实现了 filter block（布隆过滤器），目的是加速 sstable 读取</li>
@@ -299,12 +307,12 @@ log file 在逻辑层按照 record 划分，每个 record 中存放 <code>WriteB
 <li>footer：身份标识+ index of meta_index/index block</li>
 </ul>
 <h4 id="141-data-block">1.4.1. data block<a hidden class="anchor" aria-hidden="true" href="#141-data-block">#</a></h4>
-<p>data block record format 和 WAL record 略有差别：
+<p>  data block record format 和 WAL record 略有差别：
 <img alt="data block" loading="lazy" src="/posts/leveldb/2-layout/datablock.png"></p>
 <blockquote>
 <p>prefix compression</p></blockquote>
 <h4 id="142-meta-block">1.4.2. meta block<a hidden class="anchor" aria-hidden="true" href="#142-meta-block">#</a></h4>
-<p>数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base).
+<p>  数据部分由 filter 构成，每个 filter 对应一个 data range，用于判断某个 key-valud pair 是否在这个 data range 中；元数据部分就是 filter 的 offset，然后最后再加一个 begin offset 和一个 lg(base).
 <img alt="meta block" loading="lazy" src="/posts/leveldb/2-layout/metablock.png"></p>
 
 
